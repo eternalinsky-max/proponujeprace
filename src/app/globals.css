@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* шрифт/база */
+:root {
+  color-scheme: light;
+}
+::selection {
+  @apply bg-brand-500/20;
+}
+
+/* глобальні утиліти інтерфейсу */
+.btn {
+  @apply inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium transition active:translate-y-[1px];
+}
+.btn-primary {
+  @apply bg-brand-500 text-white hover:bg-brand-600 shadow-soft;
+}
+.btn-secondary {
+  @apply bg-white text-gray-900 border hover:bg-gray-50;
+}
+.btn-ghost {
+  @apply bg-white border hover:bg-gray-50;
+}
+.nav-link {
+  @apply text-sm text-gray-700 hover:text-brand-600 px-3 py-2 rounded-lg;
+}
