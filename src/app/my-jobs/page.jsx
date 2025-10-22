@@ -1,6 +1,11 @@
+// src/app/my-jobs/page.jsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const runtime = "nodejs";
+
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import JobCardList from "@/components/JobCardList";
@@ -16,7 +21,21 @@ const STATUS_OPTIONS = [
   { value: "DRAFT", label: "Szkic" },
 ];
 
-export default function MyJobsPage() {
+// Обгортка з Suspense — це головне, щоб Next не падав на useSearchParams
+export default function MyJobsPageWrapper() {
+  return (
+    <Suspense fallback={
+      <section className="px-4 py-6 sm:px-6">
+        <h1 className="mb-4 text-xl font-bold">Moje oferty</h1>
+        <div className="rounded-lg border bg-white p-6 text-gray-600">Ładowanie…</div>
+      </section>
+    }>
+      <MyJobsPageInner />
+    </Suspense>
+  );
+}
+
+function MyJobsPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading } = useAuthUser();
@@ -26,6 +45,7 @@ export default function MyJobsPage() {
     const val = Number(searchParams.get("perPage") || PER_PAGE_OPTIONS[0]);
     return PER_PAGE_OPTIONS.includes(val) ? val : PER_PAGE_OPTIONS[0];
   }, [searchParams]);
+
   const status = (searchParams.get("status") || "").trim();
   const city = (searchParams.get("city") || "").trim();
   const remote = searchParams.get("remote"); // "1" | "0" | null
@@ -91,8 +111,7 @@ export default function MyJobsPage() {
         const normalized = {
           items: data.items ?? [],
           total: data.total ?? null,
-          totalPages:
-            data.totalPages ?? (data.hasNext ? page + 1 : page), // fallback коли total=null
+          totalPages: data.totalPages ?? (data.hasNext ? page + 1 : page),
           hasNext: !!data.hasNext,
         };
 
@@ -106,9 +125,7 @@ export default function MyJobsPage() {
     }
 
     run();
-    return () => {
-      aborted = true;
-    };
+    return () => { aborted = true; };
   }, [user, loading, page, perPage, status, city, remote, router, searchParams]);
 
   if (loading || fetching) {
@@ -145,9 +162,7 @@ export default function MyJobsPage() {
               className="rounded-lg border px-2 py-1 text-sm"
             >
               {PER_PAGE_OPTIONS.map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
+                <option key={n} value={n}>{n}</option>
               ))}
             </select>
           </label>
@@ -168,9 +183,7 @@ export default function MyJobsPage() {
             className="w-full rounded-lg border px-2 py-1.5 text-sm"
           >
             {STATUS_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
+              <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
         </label>
@@ -192,27 +205,21 @@ export default function MyJobsPage() {
             <button
               type="button"
               onClick={() => setRemote(null)}
-              className={`rounded-lg border px-2 py-1.5 ${
-                remote == null ? "bg-brand-50 border-brand-600" : ""
-              }`}
+              className={`rounded-lg border px-2 py-1.5 ${remote == null ? "bg-brand-50 border-brand-600" : ""}`}
             >
               Wszystkie
             </button>
             <button
               type="button"
               onClick={() => setRemote("1")}
-              className={`rounded-lg border px-2 py-1.5 ${
-                remote === "1" ? "bg-brand-50 border-brand-600" : ""
-              }`}
+              className={`rounded-lg border px-2 py-1.5 ${remote === "1" ? "bg-brand-50 border-brand-600" : ""}`}
             >
               Zdalnie
             </button>
             <button
               type="button"
               onClick={() => setRemote("0")}
-              className={`rounded-lg border px-2 py-1.5 ${
-                remote === "0" ? "bg-brand-50 border-brand-600" : ""
-              }`}
+              className={`rounded-lg border px-2 py-1.5 ${remote === "0" ? "bg-brand-50 border-brand-600" : ""}`}
             >
               Stacjonarnie
             </button>
@@ -226,14 +233,9 @@ export default function MyJobsPage() {
           <JobCardList jobs={state.items} />
 
           <div className="mt-6">
-            <Pagination
-              page={page}
-              totalPages={state.totalPages}
-              onPageChange={setPage}
-            />
+            <Pagination page={page} totalPages={state.totalPages} onPageChange={setPage} />
           </div>
 
-          {/* Підпис — показуємо total лише якщо відомий */}
           <div className="mt-3 text-center text-sm text-gray-600">
             {state.total != null ? (
               <>Razem: <span className="font-semibold">{state.total}</span></>
