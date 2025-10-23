@@ -2,7 +2,8 @@
 "use client";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = false;
+export const fetchCache = "force-no-store";
 export const runtime = "nodejs";
 
 import React, { Suspense, useEffect, useMemo, useState } from "react";
