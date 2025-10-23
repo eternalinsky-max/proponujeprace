@@ -22,15 +22,16 @@ const STATUS_OPTIONS = [
   { value: "DRAFT", label: "Szkic" },
 ];
 
-// Обгортка з Suspense — це головне, щоб Next не падав на useSearchParams
 export default function MyJobsPageWrapper() {
   return (
-    <Suspense fallback={
-      <section className="px-4 py-6 sm:px-6">
-        <h1 className="mb-4 text-xl font-bold">Moje oferty</h1>
-        <div className="rounded-lg border bg-white p-6 text-gray-600">Ładowanie…</div>
-      </section>
-    }>
+    <Suspense
+      fallback={
+        <section className="px-4 py-6 sm:px-6">
+          <h1 className="mb-4 text-xl font-bold">Moje oferty</h1>
+          <div className="rounded-lg border bg-white p-6 text-gray-600">Ładowanie…</div>
+        </section>
+      }
+    >
       <MyJobsPageInner />
     </Suspense>
   );
@@ -58,7 +59,7 @@ function MyJobsPageInner() {
   const setQuery = (obj) => {
     const params = new URLSearchParams(searchParams?.toString() || "");
     Object.entries(obj).forEach(([k, v]) => {
-      if (v === null || v === undefined || v === "") params.delete(k);
+      if (v == null || v === "") params.delete(k);
       else params.set(k, String(v));
     });
     router.push(`/my-jobs?${params.toString()}`);
@@ -126,7 +127,9 @@ function MyJobsPageInner() {
     }
 
     run();
-    return () => { aborted = true; };
+    return () => {
+      aborted = true;
+    };
   }, [user, loading, page, perPage, status, city, remote, router, searchParams]);
 
   if (loading || fetching) {
@@ -151,7 +154,6 @@ function MyJobsPageInner() {
 
   return (
     <section className="px-4 py-6 sm:px-6">
-      {/* Заголовок + дії */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-bold">Moje oferty</h1>
         <div className="flex items-center gap-3">
@@ -163,7 +165,9 @@ function MyJobsPageInner() {
               className="rounded-lg border px-2 py-1 text-sm"
             >
               {PER_PAGE_OPTIONS.map((n) => (
-                <option key={n} value={n}>{n}</option>
+                <option key={n} value={n}>
+                  {n}
+                </option>
               ))}
             </select>
           </label>
@@ -174,7 +178,6 @@ function MyJobsPageInner() {
         </div>
       </div>
 
-      {/* Фільтри */}
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-4">
         <label className="flex items-center gap-2 text-sm">
           <span className="w-20 shrink-0 text-gray-600">Status</span>
@@ -184,7 +187,9 @@ function MyJobsPageInner() {
             className="w-full rounded-lg border px-2 py-1.5 text-sm"
           >
             {STATUS_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
             ))}
           </select>
         </label>
@@ -206,21 +211,27 @@ function MyJobsPageInner() {
             <button
               type="button"
               onClick={() => setRemote(null)}
-              className={`rounded-lg border px-2 py-1.5 ${remote == null ? "bg-brand-50 border-brand-600" : ""}`}
+              className={`rounded-lg border px-2 py-1.5 ${
+                remote == null ? "bg-brand-50 border-brand-600" : ""
+              }`}
             >
               Wszystkie
             </button>
             <button
               type="button"
               onClick={() => setRemote("1")}
-              className={`rounded-lg border px-2 py-1.5 ${remote === "1" ? "bg-brand-50 border-brand-600" : ""}`}
+              className={`rounded-lg border px-2 py-1.5 ${
+                remote === "1" ? "bg-brand-50 border-brand-600" : ""
+              }`}
             >
               Zdalnie
             </button>
             <button
               type="button"
               onClick={() => setRemote("0")}
-              className={`rounded-lg border px-2 py-1.5 ${remote === "0" ? "bg-brand-50 border-brand-600" : ""}`}
+              className={`rounded-lg border px-2 py-1.5 ${
+                remote === "0" ? "bg-brand-50 border-brand-600" : ""
+              }`}
             >
               Stacjonarnie
             </button>
@@ -228,18 +239,17 @@ function MyJobsPageInner() {
         </div>
       </div>
 
-      {/* Результати */}
       {hasItems ? (
         <>
           <JobCardList jobs={state.items} />
-
           <div className="mt-6">
             <Pagination page={page} totalPages={state.totalPages} onPageChange={setPage} />
           </div>
-
           <div className="mt-3 text-center text-sm text-gray-600">
             {state.total != null ? (
-              <>Razem: <span className="font-semibold">{state.total}</span></>
+              <>
+                Razem: <span className="font-semibold">{state.total}</span>
+              </>
             ) : (
               <>Ładowanie łącznej liczby może być pominięte dla szybkości.</>
             )}

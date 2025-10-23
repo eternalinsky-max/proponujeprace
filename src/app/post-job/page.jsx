@@ -1,15 +1,18 @@
 // src/app/post-job/page.jsx
 "use client";
 
-import React, { useState } from "react";
+export const dynamic = "force-dynamic";
+export const revalidate = false;
+export const fetchCache = "force-no-store";
+export const runtime = "nodejs";
+
+import React, { Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
 import { withAuth } from "@/lib/withAuth";
-import { auth } from "@/lib/firebase"; // запасний варіант, якщо HOC не передасть Firebase User
+import { auth } from "@/lib/firebase";
 
 function PostJobPage({ user }) {
   const router = useRouter();
-
-  // form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [city, setCity] = useState("");
@@ -18,11 +21,9 @@ function PostJobPage({ user }) {
   const [loading, setLoading] = useState(false);
 
   async function getIdTokenSafe() {
-    // якщо withAuth прокинув справжній Firebase User
     if (user && typeof user.getIdToken === "function") {
       return user.getIdToken(true);
     }
-    // fallback на клієнтський auth
     if (auth?.currentUser) {
       return auth.currentUser.getIdToken(true);
     }
@@ -31,7 +32,6 @@ function PostJobPage({ user }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
     const token = await getIdTokenSafe();
     if (!token) {
       alert("Najpierw zaloguj się (Google lub telefon).");
@@ -48,24 +48,12 @@ function PostJobPage({ user }) {
           Accept: "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          title,
-          description,
-          city,
-          salaryMin,
-          salaryMax,
-        }),
+        body: JSON.stringify({ title, description, city, salaryMin, salaryMax }),
       });
 
       if (res.ok) {
         alert("Oferta została dodana!");
-        // очистити форму
-        setTitle("");
-        setDescription("");
-        setCity("");
-        setSalaryMin("");
-        setSalaryMax("");
-        // перейти до списку
+        setTitle(""); setDescription(""); setCity(""); setSalaryMin(""); setSalaryMax("");
         router.push("/jobs");
       } else {
         let msg = `HTTP ${res.status}`;
@@ -75,8 +63,7 @@ function PostJobPage({ user }) {
             const data = await res.json();
             msg = data?.error || msg;
           } else {
-            const txt = await res.text();
-            msg = txt || msg;
+            msg = (await res.text()) || msg;
           }
         } catch {}
         alert("Błąd: " + msg);
@@ -104,7 +91,6 @@ function PostJobPage({ user }) {
           onChange={(e) => setTitle(e.target.value)}
           required
         />
-
         <textarea
           className="input"
           rows={5}
@@ -112,14 +98,12 @@ function PostJobPage({ user }) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-
         <input
           className="input"
           placeholder="Miasto (opcjonalnie)"
           value={city}
           onChange={(e) => setCity(e.target.value)}
         />
-
         <div className="grid grid-cols-2 gap-3">
           <input
             className="input"
@@ -136,12 +120,7 @@ function PostJobPage({ user }) {
             inputMode="numeric"
           />
         </div>
-
-        <button
-          type="submit"
-          className="btn btn-primary mt-2"
-          disabled={loading}
-        >
+        <button type="submit" className="btn btn-primary mt-2" disabled={loading}>
           {loading ? "Dodawanie…" : "Dodaj ofertę"}
         </button>
       </form>
@@ -156,13 +135,19 @@ function PostJobPage({ user }) {
   );
 }
 
-export default withAuth(PostJobPage, {
+const AuthedPostJob = withAuth(PostJobPage, {
   onUnauthorized(router, nextUrl) {
-    // Напр., показати алерт, потім редірект
-    // alert("Najpierw zaloguj się.");
     router.replace(`/login?next=${encodeURIComponent(nextUrl)}`);
   },
   loadingFallback: (
     <div className="p-6 text-center text-gray-600">Sprawdzanie uprawnień…</div>
   ),
 });
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="p-6 text-center text-gray-600">Ładowanie…</div>}>
+      <AuthedPostJob />
+    </Suspense>
+  );
+}
