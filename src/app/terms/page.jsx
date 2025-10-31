@@ -1,49 +1,45 @@
-export const metadata = {
-  title: "Regulamin | proponujeprace.pl",
-  description:
-    "Zapoznaj się z zasadami korzystania z portalu proponujeprace.pl.",
-};
+// src/app/terms/page.jsx
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default function TermsPage() {
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12 text-gray-700">
-      <h1 className="text-3xl font-bold mb-6">Regulamin portalu proponujeprace.pl</h1>
+    <main className="prose mx-auto max-w-3xl px-4 py-10">
+      <h1>Regulamin serwisu proponujeprace.pl</h1>
+      <p>Ostatnia aktualizacja: {new Date().toISOString().slice(0,10)}</p>
 
-      <p className="mb-4">
-        Korzystając z portalu <strong>proponujeprace.pl</strong>, użytkownik akceptuje
-        poniższe zasady.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-2">1. Cel serwisu</h2>
+      <h2>1. Postanowienia ogólne</h2>
       <p>
-        Portal umożliwia dodawanie, przeglądanie i ocenianie ofert pracy w Polsce,
-        a także wystawianie opinii o pracodawcach i pracownikach.
+        Niniejszy regulamin określa zasady korzystania z serwisu proponujeprace.pl.
+        Użytkownik, rejestrując się lub korzystając z serwisu, akceptuje niniejszy regulamin.
       </p>
 
-      <h2 className="text-xl font-semibold mt-8 mb-2">2. Rejestracja</h2>
+      <h2>2. Zakres usług</h2>
       <p>
-        Użytkownicy mogą logować się przez konto Google lub numer telefonu. Dane są
-        przetwarzane wyłącznie w celu umożliwienia korzystania z serwisu.
+        Serwis umożliwia publikowanie ofert pracy, przeglądanie ogłoszeń oraz
+        kontakt pomiędzy pracodawcami a kandydatami.
       </p>
 
-      <h2 className="text-xl font-semibold mt-8 mb-2">3. Odpowiedzialność</h2>
+      <h2>3. Odpowiedzialność</h2>
       <p>
-        Administrator nie ponosi odpowiedzialności za treści dodane przez
-        użytkowników, jednak zastrzega sobie prawo do ich moderacji lub usunięcia
-        w przypadku naruszenia zasad.
+        Administrator nie ponosi odpowiedzialności za treści publikowane przez użytkowników.
+        Zastrzegamy prawo do usunięcia treści naruszających prawo lub zasady współżycia społecznego.
       </p>
 
-      <h2 className="text-xl font-semibold mt-8 mb-2">4. Kontakt</h2>
+      <h2>4. Dane osobowe</h2>
       <p>
-        W sprawach dotyczących działania serwisu prosimy o kontakt:
-        <a
-          href="mailto:serwisvans@gmail.com"
-          className="text-brand-600 hover:underline ml-1"
-        >
-          serwisvans@gmail.com
-        </a>
-        .
+        Dane osobowe są przetwarzane zgodnie z Polityką prywatności, dostępną na stronie
+        <a href="/privacy"> Polityka prywatności</a>.
       </p>
+
+      <h2>5. Postanowienia końcowe</h2>
+      <p>
+        Administrator zastrzega sobie prawo do zmiany regulaminu.
+        Aktualna wersja jest zawsze dostępna na stronie proponujeprace.pl/terms.
+      </p>
+
+      <h2>Kontakt</h2>
+      <p>E-mail: serwisvans@gmail.com</p>
     </main>
   );
 }

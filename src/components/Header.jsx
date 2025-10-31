@@ -1,8 +1,9 @@
+// src/components/Header.jsx
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuthUser } from "@/lib/useAuthUser";
 import LogoutButton from "@/components/LogoutButton";
@@ -59,8 +60,9 @@ export default function Header() {
             <NavLink href="/">Strona główna</NavLink>
             <NavLink href="/jobs">Oferty pracy</NavLink>
             <NavLink href="/post-job">Dodaj ofertę</NavLink>
-            {/* ⬇️ ДОДАНО */}
             <NavLink href="/contact">Kontakt</NavLink>
+            <NavLink href="/terms">Regulamin</NavLink>
+            <NavLink href="/privacy">Polityka prywatności</NavLink>
           </nav>
 
           {/* Праворуч: гість або користувач */}
@@ -140,7 +142,9 @@ export default function Header() {
 
       {/* Оверлей */}
       <div
-        className={`fixed inset-0 bg-black/30 transition-opacity md:hidden ${open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`fixed inset-0 bg-black/30 transition-opacity md:hidden ${
+          open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        }`}
         aria-hidden={!open}
         onClick={() => setOpen(false)}
       />
@@ -155,8 +159,9 @@ export default function Header() {
           <NavLink href="/" onClick={() => setOpen(false)}>Strona główna</NavLink>
           <NavLink href="/jobs" onClick={() => setOpen(false)}>Oferty pracy</NavLink>
           <NavLink href="/post-job" onClick={() => setOpen(false)}>Dodaj ofertę</NavLink>
-          {/* ⬇️ ДОДАНО */}
           <NavLink href="/contact" onClick={() => setOpen(false)}>Kontakt</NavLink>
+          <NavLink href="/terms" onClick={() => setOpen(false)}>Regulamin</NavLink>
+          <NavLink href="/privacy" onClick={() => setOpen(false)}>Polityka prywatności</NavLink>
 
           <div className="my-2 border-t" />
 

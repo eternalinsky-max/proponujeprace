@@ -2,6 +2,7 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import NavBar from "@/components/NavBar";
+import SiteFooter from "@/components/SiteFooter";
 
 export const viewport = {
   themeColor: "#377ff9",
@@ -9,7 +10,7 @@ export const viewport = {
 
 export const metadata = {
   title: "proponujeprace.pl",
-  description: "Portal z ofertami pracy — dodaj, wyszukuj, aplikuj.",
+  description: "Portal ogłoszeń pracy dla Polski",
 };
 
 const inter = Inter({
@@ -22,26 +23,16 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pl">
       <body
-        className={`${inter.variable} flex min-h-dvh flex-col bg-gray-50 font-sans text-gray-900`}
+        className={`${inter.variable} min-h-dvh bg-gray-50 font-sans text-gray-900`}
       >
-        <NavBar />
-
-        <main className="mx-auto w-full max-w-6xl flex-1 py-8">
-          {children}
-        </main>
-
-        <Footer />
+        <div className="flex min-h-dvh flex-col">
+          <NavBar />
+          <main className="flex-1 mx-auto w-full max-w-6xl py-8">
+            {children}
+          </main>
+          <SiteFooter />
+        </div>
       </body>
     </html>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="border-t bg-white">
-      <div className="mx-auto max-w-6xl py-6 text-sm text-gray-600 text-center">
-        © proponujeprace.pl — Wszelkie prawa zastrzeżone.
-      </div>
-    </footer>
   );
 }

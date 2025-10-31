@@ -1,4 +1,3 @@
-// src/app/my-jobs/MyJobsClient.jsx
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -24,8 +23,8 @@ export default function MyJobsClient() {
 
   const page = Math.max(Number(searchParams.get("page") || "1"), 1);
   const perPage = useMemo(() => {
-    const val = Number(searchParams.get("perPage") || PER_PAGE_OPTIONS[0]);
-    return PER_PAGE_OPTIONS.includes(val) ? val : PER_PAGE_OPTIONS[0];
+    const v = Number(searchParams.get("perPage") || PER_PAGE_OPTIONS[0]);
+    return PER_PAGE_OPTIONS.includes(v) ? v : PER_PAGE_OPTIONS[0];
   }, [searchParams]);
   const status = (searchParams.get("status") || "").trim();
   const city = (searchParams.get("city") || "").trim();
@@ -36,12 +35,12 @@ export default function MyJobsClient() {
   const [error, setError] = useState("");
 
   const setQuery = (obj) => {
-    const params = new URLSearchParams(searchParams?.toString() || "");
+    const sp = new URLSearchParams(searchParams?.toString() || "");
     Object.entries(obj).forEach(([k, v]) => {
-      if (v == null || v === "") params.delete(k);
-      else params.set(k, String(v));
+      if (v === null || v === undefined || v === "") sp.delete(k);
+      else sp.set(k, String(v));
     });
-    router.push(`/my-jobs?${params.toString()}`);
+    router.push(`/my-jobs?${sp.toString()}`);
   };
 
   const setPage = (next) => setQuery({ page: next, perPage, status, city, remote });
@@ -68,23 +67,21 @@ export default function MyJobsClient() {
           return;
         }
 
-        const params = new URLSearchParams();
-        params.set("page", String(page));
-        params.set("perPage", String(perPage));
-        if (status) params.set("status", status);
-        if (city) params.set("city", city);
-        if (remote === "1" || remote === "0") params.set("remote", remote);
+        const sp = new URLSearchParams();
+        sp.set("page", String(page));
+        sp.set("perPage", String(perPage));
+        if (status) sp.set("status", status);
+        if (city) sp.set("city", city);
+        if (remote === "1" || remote === "0") sp.set("remote", remote);
 
-        const res = await fetch(`/api/my-jobs?${params.toString()}`, {
+        const res = await fetch(`/api/my-jobs?${sp.toString()}`, {
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store",
         });
-
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           throw new Error(data.error || `HTTP ${res.status}`);
         }
-
         const data = await res.json();
         const normalized = {
           items: data.items ?? [],
@@ -92,10 +89,8 @@ export default function MyJobsClient() {
           totalPages: data.totalPages ?? (data.hasNext ? page + 1 : page),
           hasNext: !!data.hasNext,
         };
-
         if (!aborted) setState(normalized);
       } catch (e) {
-        console.error(e);
         if (!aborted) setError(e.message || "Błąd pobierania");
       } finally {
         if (!aborted) setFetching(false);
@@ -113,7 +108,6 @@ export default function MyJobsClient() {
       </section>
     );
   }
-
   if (error) {
     return (
       <section className="px-4 py-6 sm:px-6">
@@ -137,12 +131,9 @@ export default function MyJobsClient() {
               onChange={(e) => setPerPage(Number(e.target.value))}
               className="rounded-lg border px-2 py-1 text-sm"
             >
-              {PER_PAGE_OPTIONS.map((n) => (
-                <option key={n} value={n}>{n}</option>
-              ))}
+              {PER_PAGE_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
             </select>
           </label>
-
           <Link href="/post-job" className="btn btn-primary">Dodaj ofertę</Link>
         </div>
       </div>
@@ -155,9 +146,7 @@ export default function MyJobsClient() {
             onChange={(e) => setStatus(e.target.value)}
             className="w-full rounded-lg border px-2 py-1.5 text-sm"
           >
-            {STATUS_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
+            {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </label>
 
@@ -198,7 +187,7 @@ export default function MyJobsClient() {
             <Pagination page={page} totalPages={state.totalPages} onPageChange={setPage} />
           </div>
           <div className="mt-3 text-center text-sm text-gray-600">
-            {state.total != null ? <>Razem: <span className="font-semibold">{state.total}</span></> : <>Ładowanie łącznej liczby może być pominięte dla szybkości.</>}
+            {state.total != null ? <>Razem: <span className="font-semibold">{state.total}</span></> : <>Łączna liczba może być pominięta.</>}
           </div>
         </>
       ) : (
