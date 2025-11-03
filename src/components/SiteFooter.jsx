@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Facebook,
   Instagram,
@@ -14,12 +15,25 @@ import {
 } from "lucide-react";
 import { useMemo } from "react";
 
+function hashString(s) {
+  // простий детермінований хеш (без Math.random / Date.now)
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = (h * 31 + s.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
 export default function SiteFooter() {
   const year = new Date().getFullYear();
+  const pathname = usePathname() || "/";
 
-  // 🎲 Випадкова іконка при кожному завантаженні
+  // 🧠 детермінований вибір іконки за шляхом
   const icons = [Home, Leaf, Briefcase, Handshake, Hammer, Sunrise];
-  const Icon = useMemo(() => icons[Math.floor(Math.random() * icons.length)], []);
+  const Icon = useMemo(() => {
+    const idx = hashString(pathname) % icons.length;
+    return icons[idx];
+  }, [pathname]);
 
   return (
     <footer className="mt-10 bg-gradient-to-r from-gray-900 to-gray-800 text-gray-300">
@@ -30,15 +44,9 @@ export default function SiteFooter() {
         </div>
 
         <nav className="mt-4 flex flex-wrap items-center gap-4 text-sm sm:mt-0">
-          <Link href="/terms" className="hover:text-white transition">
-            Regulamin
-          </Link>
-          <Link href="/privacy" className="hover:text-white transition">
-            Polityka prywatności
-          </Link>
-          <Link href="/contact" className="hover:text-white transition">
-            Kontakt
-          </Link>
+          <Link href="/terms" className="hover:text-white transition">Regulamin</Link>
+          <Link href="/privacy" className="hover:text-white transition">Polityka prywatności</Link>
+          <Link href="/contact" className="hover:text-white transition">Kontakt</Link>
         </nav>
 
         <div className="mt-4 flex items-center gap-4 sm:mt-0">
@@ -54,11 +62,14 @@ export default function SiteFooter() {
         </div>
       </div>
 
-      {/* Випадкова іконка + вірш */}
-      <div className="border-t border-gray-700 text-center py-4 text-sm text-gray-400 italic flex justify-center items-center gap-2">
+      {/* детермінований блок — без гідраційних розбіжностей */}
+      <div
+        className="border-t border-gray-700 text-center py-4 text-sm text-gray-400 italic flex justify-center items-center gap-2"
+        suppressHydrationWarning
+      >
         <Icon className="size-4 text-gray-500" />
         <span>
-          „Cokolwiek czynicie, z duszy wykonujcie, jak dla Pana, a nie dla ludzi.” — Kol 3:23
+          „Cokolwiek czynicie, z duszy wykonujcie, jak dla Pana, a nie dla ludzi.” — Кол. 3:23
         </span>
       </div>
     </footer>

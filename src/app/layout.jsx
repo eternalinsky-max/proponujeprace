@@ -2,11 +2,11 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import NavBar from "@/components/NavBar";
-import SiteFooter from "@/components/SiteFooter";
+// ❗ динамічний імпорт футера
+import dynamic from "next/dynamic";
+const SiteFooter = dynamic(() => import("@/components/SiteFooter"), { ssr: false });
 
-export const viewport = {
-  themeColor: "#377ff9",
-};
+export const viewport = { themeColor: "#377ff9" };
 
 export const metadata = {
   title: "proponujeprace.pl",
@@ -22,15 +22,13 @@ const inter = Inter({
 export default function RootLayout({ children }) {
   return (
     <html lang="pl">
-      <body
-        className={`${inter.variable} min-h-dvh bg-gray-50 font-sans text-gray-900`}
-      >
+      <body className={`${inter.variable} min-h-dvh bg-gray-50 font-sans text-gray-900`}>
         <div className="flex min-h-dvh flex-col">
           <NavBar />
           <main className="flex-1 mx-auto w-full max-w-6xl py-8">
             {children}
           </main>
-          <SiteFooter />
+          <SiteFooter /> {/* тепер тільки на клієнті */}
         </div>
       </body>
     </html>
