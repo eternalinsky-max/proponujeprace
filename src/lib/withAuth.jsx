@@ -1,7 +1,8 @@
-"use client";
-import React from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useAuthUser } from "@/lib/useAuthUser";
+'use client';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import React from 'react';
+
+import { useAuthUser } from '@/lib/useAuthUser';
 
 /**
  * withAuth(Component, { loadingFallback?, onUnauthorized? })
@@ -16,7 +17,7 @@ export function withAuth(Wrapped, opts = {}) {
     const router = useRouter();
     const pathname = usePathname();
     const sp = useSearchParams();
-    const nextUrl = pathname + (sp.toString() ? `?${sp}` : "");
+    const nextUrl = pathname + (sp.toString() ? `?${sp}` : '');
 
     if (loading) {
       return (
@@ -48,6 +49,6 @@ export function withAuth(Wrapped, opts = {}) {
   }
 
   // зберігаємо ім'я для DevTools
-  AuthWrapper.displayName = `withAuth(${Wrapped.displayName || Wrapped.name || "Component"})`;
+  AuthWrapper.displayName = `withAuth(${Wrapped.displayName || Wrapped.name || 'Component'})`;
   return AuthWrapper;
 }

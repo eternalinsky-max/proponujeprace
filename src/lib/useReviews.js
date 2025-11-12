@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { auth } from "@/lib/firebase";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import { auth } from '@/lib/firebase';
 
 /**
  * Хук для роботи з відгуками:
@@ -18,15 +19,15 @@ export function useReviews({ targetType, targetId, perPage = 10 }) {
   const [hasNext, setHasNext] = useState(false);
   const [total, setTotal] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
+  const [err, setErr] = useState('');
   const inflight = useRef(0);
 
   const query = useMemo(() => {
     const p = new URLSearchParams();
-    p.set("targetType", String(targetType || "").toUpperCase());
-    p.set("targetId", String(targetId || ""));
-    p.set("page", String(page));
-    p.set("perPage", String(perPage));
+    p.set('targetType', String(targetType || '').toUpperCase());
+    p.set('targetId', String(targetId || ''));
+    p.set('page', String(page));
+    p.set('perPage', String(perPage));
     return p.toString();
   }, [targetType, targetId, page, perPage]);
 
@@ -35,9 +36,9 @@ export function useReviews({ targetType, targetId, perPage = 10 }) {
     inflight.current++;
     try {
       setLoading(true);
-      setErr("");
+      setErr('');
 
-      const res = await fetch(`/api/reviews?${query}`, { cache: "no-store" });
+      const res = await fetch(`/api/reviews?${query}`, { cache: 'no-store' });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || `HTTP ${res.status}`);
@@ -47,7 +48,7 @@ export function useReviews({ targetType, targetId, perPage = 10 }) {
       setHasNext(!!data.hasNext);
       setTotal(data.total ?? null);
     } catch (e) {
-      setErr(e.message || "Błąd");
+      setErr(e.message || 'Błąd');
     } finally {
       inflight.current--;
       setLoading(inflight.current > 0);
@@ -74,7 +75,7 @@ export function useReviews({ targetType, targetId, perPage = 10 }) {
   const upsertReview = useCallback(
     async ({ ratingOverall, text }) => {
       const token = await auth.currentUser?.getIdToken(true);
-      if (!token) throw new Error("Brak autoryzacji");
+      if (!token) throw new Error('Brak autoryzacji');
 
       // optimistic: додаємо/оновлюємо «мій» відгук у списку
       const myUid = auth.currentUser?.uid;
@@ -83,13 +84,17 @@ export function useReviews({ targetType, targetId, perPage = 10 }) {
       // Замінюємо/додаємо перший елемент — мій відгук (на сторінці 1)
       setItems((prev) => {
         const copy = [...prev];
-        const idx = copy.findIndex((r) => r.User?.id === myUid || r.id?.startsWith("optimistic-"));
+        const idx = copy.findIndex((r) => r.User?.id === myUid || r.id?.startsWith('optimistic-'));
         const patch = {
           id: optimisticId,
           ratingOverall,
           text,
           createdAt: new Date().toISOString(),
-          User: { id: myUid, displayName: auth.currentUser?.displayName || "Ty", photoUrl: auth.currentUser?.photoURL || null },
+          User: {
+            id: myUid,
+            displayName: auth.currentUser?.displayName || 'Ty',
+            photoUrl: auth.currentUser?.photoURL || null,
+          },
         };
         if (idx >= 0) copy[idx] = { ...copy[idx], ...patch };
         else copy.unshift(patch);
@@ -97,17 +102,17 @@ export function useReviews({ targetType, targetId, perPage = 10 }) {
       });
 
       try {
-        const res = await fetch("/api/reviews", {
-          method: "POST",
+        const res = await fetch('/api/reviews', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             targetType,
             targetId,
             ratingOverall,
-            text: (text || "").trim(),
+            text: (text || '').trim(),
           }),
         });
 
@@ -132,14 +137,14 @@ export function useReviews({ targetType, targetId, perPage = 10 }) {
   const deleteReview = useCallback(
     async (id) => {
       const token = await auth.currentUser?.getIdToken(true);
-      if (!token) throw new Error("Brak autoryzacji");
+      if (!token) throw new Error('Brak autoryzacji');
 
       const prev = items;
       setItems((cur) => cur.filter((r) => r.id !== id));
 
       try {
         const res = await fetch(`/api/reviews/${id}`, {
-          method: "DELETE",
+          method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {

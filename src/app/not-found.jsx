@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function NotFound() {
   return (
@@ -17,28 +17,19 @@ export default function NotFound() {
       />
 
       {/* Заголовки */}
-      <h1 className="mb-3 text-4xl font-extrabold text-brand-600 sm:text-5xl">
-        404
-      </h1>
-      <h2 className="mb-3 text-xl font-semibold sm:text-2xl">
-        Strona nie została znaleziona
-      </h2>
+      <h1 className="mb-3 text-4xl font-extrabold text-brand-600 sm:text-5xl">404</h1>
+      <h2 className="mb-3 text-xl font-semibold sm:text-2xl">Strona nie została znaleziona</h2>
       <p className="mb-6 max-w-md text-gray-600">
         Ups… wygląda na to, że ta strona nie istnieje albo została przeniesiona.
       </p>
 
       {/* Кнопка */}
-      <Link
-        href="/"
-        className="btn btn-primary transition-transform hover:scale-105"
-      >
+      <Link href="/" className="btn btn-primary transition-transform hover:scale-105">
         ← Wróć na stronę główną
       </Link>
 
       {/* Підпис унизу */}
-      <p className="mt-10 text-sm text-gray-400">
-        © {new Date().getFullYear()} proponujeprace.pl
-      </p>
+      <p className="mt-10 text-sm text-gray-400">© {new Date().getFullYear()} proponujeprace.pl</p>
     </main>
   );
 }

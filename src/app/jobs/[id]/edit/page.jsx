@@ -1,9 +1,10 @@
 // src/app/jobs/[id]/edit/page.jsx
-"use client";
+'use client';
 
-import React from "react";
-import { withAuth } from "@/lib/withAuth";
-import JobEditForm from "@/components/JobEditForm";
+import React from 'react';
+
+import JobEditForm from '@/components/JobEditForm';
+import { withAuth } from '@/lib/withAuth';
 
 function EditJobPage({ params, user }) {
   const id = params.id; // <-- рядок!

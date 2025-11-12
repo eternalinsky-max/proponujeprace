@@ -1,11 +1,13 @@
 // src/components/NavBar.jsx
-"use client";
+'use client';
+/* eslint-env browser */
 
-import { useEffect, useState, useMemo } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import UserMenu from "@/components/UserMenu";
-import AddJobButton from "@/components/AddJobButton";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+
+import AddJobButton from '@/components/AddJobButton';
+import UserMenu from '@/components/UserMenu';
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -14,23 +16,22 @@ export default function NavBar() {
   // Закриваємо меню при зміні маршруту та по Esc
   useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
-    const onKey = (e) => e.key === "Escape" && setOpen(false);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    const onKey = (e) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // ДОДАНО /contact до items
+  // Меню пункти
   const items = useMemo(
     () => [
-      { href: "/", label: "Strona główna" },
-      { href: "/jobs", label: "Oferty pracy" },
-      { href: "/contact", label: "Kontakt" }, // ⬅️ тут
+      { href: '/', label: 'Strona główna' },
+      { href: '/jobs', label: 'Oferty pracy' },
+      { href: '/contact', label: 'Kontakt' },
     ],
     [],
   );
 
-  const isActive = (href) =>
-    href === "/" ? pathname === "/" : pathname?.startsWith(href);
+  const isActive = (href) => (href === '/' ? pathname === '/' : pathname?.startsWith(href));
 
   return (
     <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
@@ -44,21 +45,21 @@ export default function NavBar() {
         </Link>
 
         {/* desktop nav */}
-        <nav
-          className="hidden items-center gap-2 md:flex"
-          aria-label="Główna nawigacja"
-        >
-          {items.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`nav-link${isActive(href) ? " bg-brand-50 text-brand-600" : ""}`}
-              aria-current={isActive(href) ? "page" : undefined}
-              prefetch
-            >
-              {label}
-            </Link>
-          ))}
+        <nav className="hidden items-center gap-2 md:flex" aria-label="Główna nawigacja">
+          {items.map(({ href, label }) => {
+            const active = isActive(href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`nav-link${active ? ' bg-brand-50 text-brand-600' : ''}`}
+                aria-current={active ? 'page' : undefined}
+                prefetch
+              >
+                {label}
+              </Link>
+            );
+          })}
           <AddJobButton />
           <UserMenu />
         </nav>
@@ -72,7 +73,7 @@ export default function NavBar() {
           aria-controls="mobile-nav"
           onClick={() => setOpen((v) => !v)}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M4 6h16M4 12h16M4 18h16"
               stroke="currentColor"
@@ -86,21 +87,21 @@ export default function NavBar() {
       {/* mobile panel */}
       {open && (
         <div className="border-t bg-white md:hidden" id="mobile-nav">
-          <nav
-            className="mx-auto flex max-w-6xl flex-col px-4 py-3"
-            aria-label="Menu mobilne"
-          >
-            {items.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`nav-link${isActive(href) ? " bg-brand-50 text-brand-600" : ""}`}
-                onClick={() => setOpen(false)}
-                aria-current={isActive(href) ? "page" : undefined}
-              >
-                {label}
-              </Link>
-            ))}
+          <nav className="mx-auto flex max-w-6xl flex-col px-4 py-3" aria-label="Menu mobilne">
+            {items.map(({ href, label }) => {
+              const active = isActive(href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`nav-link${active ? ' bg-brand-50 text-brand-600' : ''}`}
+                  onClick={() => setOpen(false)}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  {label}
+                </Link>
+              );
+            })}
             <AddJobButton className="btn btn-primary mt-2 w-full justify-center" />
             {/* UserMenu може показати "Zaloguj się" або "Wyloguj" залежно від стану */}
             <div className="mt-2">

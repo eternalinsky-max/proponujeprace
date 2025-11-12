@@ -1,29 +1,30 @@
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { verifyFirebaseToken } from "@/lib/auth";
+import { NextResponse } from 'next/server';
+
+import { verifyFirebaseToken } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(req) {
   try {
     // auth
-    const authHeader = req.headers.get("authorization") || "";
-    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const authHeader = req.headers.get('authorization') || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
     const decoded = await verifyFirebaseToken(token);
-    if (!decoded) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!decoded) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const me = await prisma.user.findUnique({
       where: { firebaseUid: decoded.uid },
       select: { id: true, isAdmin: true },
     });
-    if (!me || !me.isAdmin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (!me || !me.isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { searchParams } = new URL(req.url);
-    const page = Math.max(Number(searchParams.get("page")) || 1, 1);
-    const perPage = Math.min(Math.max(Number(searchParams.get("perPage")) || 20, 1), 100);
-    const q = (searchParams.get("q") || "").trim().toLowerCase();
-    const status = (searchParams.get("status") || "").toUpperCase();
+    const page = Math.max(Number(searchParams.get('page')) || 1, 1);
+    const perPage = Math.min(Math.max(Number(searchParams.get('perPage')) || 20, 1), 100);
+    const q = (searchParams.get('q') || '').trim().toLowerCase();
+    const status = (searchParams.get('status') || '').toUpperCase();
 
     const whereOr = q
       ? {
@@ -42,15 +43,31 @@ export async function GET(req) {
     let base = { deletedAt: null, ...whereOr };
 
     // Фільтр статусу (включає soft-deleted)
-    if (status === "OK") {
-      base = { AND: [{ success: true }, { spam: false }, { rateLimited: false }, { deletedAt: null }, whereOr] };
-    } else if (status === "SPAM") {
+    if (status === 'OK') {
+      base = {
+        AND: [
+          { success: true },
+          { spam: false },
+          { rateLimited: false },
+          { deletedAt: null },
+          whereOr,
+        ],
+      };
+    } else if (status === 'SPAM') {
       base = { AND: [{ spam: true }, { deletedAt: null }, whereOr] };
-    } else if (status === "RATE-LIMIT") {
+    } else if (status === 'RATE-LIMIT') {
       base = { AND: [{ rateLimited: true }, { deletedAt: null }, whereOr] };
-    } else if (status === "ERROR") {
-      base = { AND: [{ success: false }, { spam: false }, { rateLimited: false }, { deletedAt: null }, whereOr] };
-    } else if (status === "DELETED") {
+    } else if (status === 'ERROR') {
+      base = {
+        AND: [
+          { success: false },
+          { spam: false },
+          { rateLimited: false },
+          { deletedAt: null },
+          whereOr,
+        ],
+      };
+    } else if (status === 'DELETED') {
       base = { AND: [{ deletedAt: { not: null } }, whereOr] };
     }
 
@@ -59,7 +76,7 @@ export async function GET(req) {
     const [items, total] = await Promise.all([
       prisma.contactMessageLog.findMany({
         where: base,
-        orderBy: [{ deletedAt: "desc" }, { createdAt: "desc" }],
+        orderBy: [{ deletedAt: 'desc' }, { createdAt: 'desc' }],
         skip,
         take: perPage,
         select: {
@@ -86,12 +103,9 @@ export async function GET(req) {
 
     const totalPages = Math.max(1, Math.ceil(total / perPage));
 
-    return NextResponse.json(
-      { items, page, perPage, total, totalPages },
-      { status: 200 }
-    );
+    return NextResponse.json({ items, page, perPage, total, totalPages }, { status: 200 });
   } catch (e) {
-    console.error("GET /api/admin/contact-logs error:", e);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.error('GET /api/admin/contact-logs error:', e);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

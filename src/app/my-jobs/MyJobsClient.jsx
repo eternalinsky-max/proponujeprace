@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+
 import JobCardList from "@/components/JobCardList";
 import Pagination from "@/components/Pagination";
-import { useAuthUser } from "@/lib/useAuthUser";
 import { auth } from "@/lib/firebase";
+import { useAuthUser } from "@/lib/useAuthUser";
 
 const PER_PAGE_OPTIONS = [10, 20, 50];
 const STATUS_OPTIONS = [
@@ -22,15 +23,22 @@ export default function MyJobsClient() {
   const { user, loading } = useAuthUser();
 
   const page = Math.max(Number(searchParams.get("page") || "1"), 1);
+
   const perPage = useMemo(() => {
     const v = Number(searchParams.get("perPage") || PER_PAGE_OPTIONS[0]);
     return PER_PAGE_OPTIONS.includes(v) ? v : PER_PAGE_OPTIONS[0];
   }, [searchParams]);
+
   const status = (searchParams.get("status") || "").trim();
   const city = (searchParams.get("city") || "").trim();
   const remote = searchParams.get("remote"); // "1" | "0" | null
 
-  const [state, setState] = useState({ items: [], total: null, totalPages: 1, hasNext: false });
+  const [state, setState] = useState({
+    items: [],
+    total: null,
+    totalPages: 1,
+    hasNext: false,
+  });
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState("");
 
@@ -51,12 +59,15 @@ export default function MyJobsClient() {
 
   useEffect(() => {
     let aborted = false;
+
     async function run() {
       if (loading) return;
+
       if (!user) {
         router.replace(`/login?next=/my-jobs`);
         return;
       }
+
       try {
         setFetching(true);
         setError("");
@@ -78,10 +89,12 @@ export default function MyJobsClient() {
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store",
         });
+
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           throw new Error(data.error || `HTTP ${res.status}`);
         }
+
         const data = await res.json();
         const normalized = {
           items: data.items ?? [],
@@ -89,6 +102,7 @@ export default function MyJobsClient() {
           totalPages: data.totalPages ?? (data.hasNext ? page + 1 : page),
           hasNext: !!data.hasNext,
         };
+
         if (!aborted) setState(normalized);
       } catch (e) {
         if (!aborted) setError(e.message || "Błąd pobierania");
@@ -96,23 +110,32 @@ export default function MyJobsClient() {
         if (!aborted) setFetching(false);
       }
     }
+
     run();
-    return () => { aborted = true; };
+    return () => {
+      aborted = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading, page, perPage, status, city, remote, router, searchParams]);
 
   if (loading || fetching) {
     return (
       <section className="px-4 py-6 sm:px-6">
         <h1 className="mb-4 text-xl font-bold">Moje oferty</h1>
-        <div className="rounded-lg border bg-white p-6 text-gray-600">Ładowanie…</div>
+        <div className="rounded-lg border bg-white p-6 text-gray-600" role="status" aria-live="polite">
+          Ładowanie…
+        </div>
       </section>
     );
   }
+
   if (error) {
     return (
       <section className="px-4 py-6 sm:px-6">
         <h1 className="mb-4 text-xl font-bold">Moje oferty</h1>
-        <div className="rounded-lg border bg-white p-6 text-red-600">Błąd: {error}</div>
+        <div className="rounded-lg border bg-white p-6 text-red-600" role="status" aria-live="polite">
+          Błąd: {error}
+        </div>
       </section>
     );
   }
@@ -131,10 +154,16 @@ export default function MyJobsClient() {
               onChange={(e) => setPerPage(Number(e.target.value))}
               className="rounded-lg border px-2 py-1 text-sm"
             >
-              {PER_PAGE_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
+              {PER_PAGE_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
             </select>
           </label>
-          <Link href="/post-job" className="btn btn-primary">Dodaj ofertę</Link>
+          <Link href="/post-job" className="btn btn-primary">
+            Dodaj ofertę
+          </Link>
         </div>
       </div>
 
@@ -146,7 +175,11 @@ export default function MyJobsClient() {
             onChange={(e) => setStatus(e.target.value)}
             className="w-full rounded-lg border px-2 py-1.5 text-sm"
           >
-            {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            {STATUS_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
           </select>
         </label>
 
@@ -164,16 +197,31 @@ export default function MyJobsClient() {
         <div className="flex items-center gap-3 text-sm">
           <span className="w-20 shrink-0 text-gray-600">Tryb</span>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setRemote(null)}
-              className={`rounded-lg border px-2 py-1.5 ${remote == null ? "bg-brand-50 border-brand-600" : ""}`}>
+            <button
+              type="button"
+              onClick={() => setRemote(null)}
+              className={`rounded-lg border px-2 py-1.5 ${
+                remote == null ? "bg-brand-50 border-brand-600" : ""
+              }`}
+            >
               Wszystkie
             </button>
-            <button type="button" onClick={() => setRemote("1")}
-              className={`rounded-lg border px-2 py-1.5 ${remote === "1" ? "bg-brand-50 border-brand-600" : ""}`}>
+            <button
+              type="button"
+              onClick={() => setRemote("1")}
+              className={`rounded-lg border px-2 py-1.5 ${
+                remote === "1" ? "bg-brand-50 border-brand-600" : ""
+              }`}
+            >
               Zdalnie
             </button>
-            <button type="button" onClick={() => setRemote("0")}
-              className={`rounded-lg border px-2 py-1.5 ${remote === "0" ? "bg-brand-50 border-brand-600" : ""}`}>
+            <button
+              type="button"
+              onClick={() => setRemote("0")}
+              className={`rounded-lg border px-2 py-1.5 ${
+                remote === "0" ? "bg-brand-50 border-brand-600" : ""
+              }`}
+            >
               Stacjonarnie
             </button>
           </div>
@@ -187,7 +235,13 @@ export default function MyJobsClient() {
             <Pagination page={page} totalPages={state.totalPages} onPageChange={setPage} />
           </div>
           <div className="mt-3 text-center text-sm text-gray-600">
-            {state.total != null ? <>Razem: <span className="font-semibold">{state.total}</span></> : <>Łączna liczba może być pominięta.</>}
+            {state.total != null ? (
+              <>
+                Razem: <span className="font-semibold">{state.total}</span>
+              </>
+            ) : (
+              <>Łączna liczba może być pominięta.</>
+            )}
           </div>
         </>
       ) : (

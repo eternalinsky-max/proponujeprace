@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
+import { useMemo } from 'react';
 
 export default function Pagination({
   page = 1,
   totalPages = 1,
   onPageChange,
   maxVisible = 5,
-  className = "",
+  className = '',
 }) {
   const pages = useMemo(() => {
     const p = Math.max(1, Number(page) || 1);
@@ -27,18 +27,14 @@ export default function Pagination({
     if (next !== page) onPageChange(next);
   };
 
-  const disabledBtn =
-    "pointer-events-none opacity-50 border-gray-200 text-gray-400";
+  const disabledBtn = 'pointer-events-none opacity-50 border-gray-200 text-gray-400';
 
   return (
-    <nav
-      aria-label="Paginacja"
-      className={`flex items-center justify-center gap-2 ${className}`}
-    >
+    <nav aria-label="Paginacja" className={`flex items-center justify-center gap-2 ${className}`}>
       <button
         type="button"
         onClick={() => go(page - 1)}
-        className={`rounded-lg border px-3 py-1.5 text-sm hover:bg-gray-50 ${page <= 1 ? disabledBtn : ""}`}
+        className={`rounded-lg border px-3 py-1.5 text-sm hover:bg-gray-50 ${page <= 1 ? disabledBtn : ''}`}
       >
         ← Poprzednia
       </button>
@@ -61,9 +57,9 @@ export default function Pagination({
           key={n}
           type="button"
           onClick={() => go(n)}
-          aria-current={n === page ? "page" : undefined}
+          aria-current={n === page ? 'page' : undefined}
           className={`rounded-lg border px-3 py-1.5 text-sm hover:bg-gray-50 ${
-            n === page ? "border-brand-600 bg-brand-50 font-semibold" : ""
+            n === page ? 'bg-brand-50 border-brand-600 font-semibold' : ''
           }`}
         >
           {n}
@@ -89,7 +85,7 @@ export default function Pagination({
         type="button"
         onClick={() => go(page + 1)}
         className={`rounded-lg border px-3 py-1.5 text-sm hover:bg-gray-50 ${
-          page >= totalPages ? disabledBtn : ""
+          page >= totalPages ? disabledBtn : ''
         }`}
       >
         Następna →

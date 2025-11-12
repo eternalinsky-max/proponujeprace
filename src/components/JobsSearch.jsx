@@ -1,35 +1,35 @@
-"use client";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+'use client';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect,useState } from 'react';
 
 export default function JobsSearch() {
   const router = useRouter();
   const sp = useSearchParams();
-  const [q, setQ] = useState(sp.get("q") ?? "");
-  const [city, setCity] = useState(sp.get("city") ?? "");
+  const [q, setQ] = useState(sp.get('q') ?? '');
+  const [city, setCity] = useState(sp.get('city') ?? '');
 
   // синхронізуємося з адресним рядком
   useEffect(() => {
-    setQ(sp.get("q") ?? "");
-    setCity(sp.get("city") ?? "");
+    setQ(sp.get('q') ?? '');
+    setCity(sp.get('city') ?? '');
   }, [sp]);
 
   function submit(e) {
     e.preventDefault();
     const params = new URLSearchParams(sp.toString());
-    q ? params.set("q", q) : params.delete("q");
-    city ? params.set("city", city) : params.delete("city");
-    params.set("page", "1"); // при новому пошуку — перша сторінка
+    q ? params.set('q', q) : params.delete('q');
+    city ? params.set('city', city) : params.delete('city');
+    params.set('page', '1'); // при новому пошуку — перша сторінка
     router.replace(`/jobs?${params.toString()}`);
   }
 
   function reset() {
-    setQ("");
-    setCity("");
+    setQ('');
+    setCity('');
     const params = new URLSearchParams(sp.toString());
-    params.delete("q");
-    params.delete("city");
-    params.set("page", "1");
+    params.delete('q');
+    params.delete('city');
+    params.set('page', '1');
     router.replace(`/jobs?${params.toString()}`);
   }
 

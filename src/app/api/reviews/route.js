@@ -2,10 +2,11 @@
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { verifyFirebaseToken } from "@/lib/auth";
 import { randomUUID } from "crypto";
+import { NextResponse } from "next/server";
+
+import { verifyFirebaseToken } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 // Налаштування бейєсового усереднення
 const PRIOR_MEAN = 4.0; // 1..5
@@ -34,25 +35,15 @@ async function recomputeAggregatesTx(tx, targetType, targetId) {
   if (targetType === "JOB") {
     await tx.job.update({
       where: { id: targetId },
-      data: {
-        ratingCount: count,
-        ratingSum: sum,
-        ratingAvg: avg,
-        bayesScore,
-      },
+      data: { ratingCount: count, ratingSum: sum, ratingAvg: avg, bayesScore },
     });
   } else if (targetType === "COMPANY") {
     await tx.company.update({
       where: { id: targetId },
-      data: {
-        ratingCount: count,
-        ratingSum: sum,
-        ratingAvg: avg,
-        bayesScore,
-      },
+      data: { ratingCount: count, ratingSum: sum, ratingAvg: avg, bayesScore },
     });
   } else if (targetType === "USER") {
-    // Для користувача ми ведемо окремі поля як "працівника"
+    // Для користувача поля як "працівника"
     await tx.user.update({
       where: { id: targetId },
       data: {
@@ -109,7 +100,8 @@ export async function GET(req) {
         where: { targetType, targetId, isHidden: false },
       });
       totalPages = Math.max(1, Math.ceil(total / perPage));
-    } catch {
+    } catch (err) {
+      console.error("count /api/reviews failed:", err);
       total = null;
       totalPages = hasNext ? page + 1 : page;
     }
@@ -129,7 +121,9 @@ export async function POST(req) {
   try {
     // auth
     const authHeader = req.headers.get("authorization") || "";
-    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const m = authHeader.match(/^Bearer\s+(.+)$/i);
+    const token = m?.[1] || null;
+
     const decoded = await verifyFirebaseToken(token);
     if (!decoded) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -182,7 +176,7 @@ export async function POST(req) {
           isHidden: false,
         },
         create: {
-          id: randomUUID(), // обов'язково, бо Review.id = String @id
+          id: randomUUID(), // Review.id = String @id
           authorId: me.id,
           targetType,
           targetId,

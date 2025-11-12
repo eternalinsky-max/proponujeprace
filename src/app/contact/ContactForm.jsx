@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 export default function ContactForm() {
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    message: "",
+    name: '',
+    email: '',
+    message: '',
     termsAccepted: false,
   });
   const [sending, setSending] = useState(false);
   const [ok, setOk] = useState(false);
-  const [err, setErr] = useState("");
+  const [err, setErr] = useState('');
   const [startedAt, setStartedAt] = useState(Date.now());
 
   useEffect(() => setStartedAt(Date.now()), []);
@@ -21,7 +21,7 @@ export default function ContactForm() {
     if (ok || err) {
       const timer = setTimeout(() => {
         setOk(false);
-        setErr("");
+        setErr('');
       }, 5000); // 5 секунд
       return () => clearTimeout(timer);
     }
@@ -31,7 +31,7 @@ export default function ContactForm() {
     const { name, type, checked, value } = e.target;
     setForm((s) => ({
       ...s,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   }
 
@@ -39,14 +39,14 @@ export default function ContactForm() {
     e.preventDefault();
     setSending(true);
     setOk(false);
-    setErr("");
+    setErr('');
 
-    const hp = (e.currentTarget.website?.value || "").trim();
+    const hp = (e.currentTarget.website?.value || '').trim();
 
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: form.name.trim(),
           email: form.email.trim(),
@@ -59,11 +59,11 @@ export default function ContactForm() {
 
       // 🧩 обробка rate limit (429)
       if (res.status === 429) {
-        const retry = res.headers.get("Retry-After");
+        const retry = res.headers.get('Retry-After');
         throw new Error(
           retry
             ? `Zbyt wiele prób. Spróbuj ponownie za ${retry} s.`
-            : "Zbyt wiele prób. Spróbuj ponownie później."
+            : 'Zbyt wiele prób. Spróbuj ponownie później.',
         );
       }
 
@@ -73,10 +73,10 @@ export default function ContactForm() {
       }
 
       setOk(true);
-      setForm({ name: "", email: "", message: "", termsAccepted: false });
+      setForm({ name: '', email: '', message: '', termsAccepted: false });
       setStartedAt(Date.now());
     } catch (e2) {
-      setErr(e2.message || "Wystąpił błąd");
+      setErr(e2.message || 'Wystąpił błąd');
     } finally {
       setSending(false);
     }
@@ -87,8 +87,8 @@ export default function ContactForm() {
       <h1 className="mb-6 text-center text-3xl font-bold">Skontaktuj się z nami</h1>
 
       <p className="mb-8 text-center text-gray-600">
-        Jeśli masz pytania, sugestie lub chcesz zgłosić problem z portalem –
-        napisz do nas. Odpowiemy najszybciej jak to możliwe.
+        Jeśli masz pytania, sugestie lub chcesz zgłosić problem z portalem – napisz do nas.
+        Odpowiemy najszybciej jak to możliwe.
       </p>
 
       {ok && (
@@ -107,9 +107,7 @@ export default function ContactForm() {
         className="grid gap-5 rounded-2xl border bg-white p-6 shadow-sm"
       >
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-600">
-            Imię i nazwisko
-          </label>
+          <label className="mb-1 block text-sm font-medium text-gray-600">Imię i nazwisko</label>
           <input
             type="text"
             name="name"
@@ -124,9 +122,7 @@ export default function ContactForm() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-600">
-            Adres e-mail
-          </label>
+          <label className="mb-1 block text-sm font-medium text-gray-600">Adres e-mail</label>
           <input
             type="email"
             name="email"
@@ -139,9 +135,7 @@ export default function ContactForm() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-600">
-            Treść wiadomości
-          </label>
+          <label className="mb-1 block text-sm font-medium text-gray-600">Treść wiadomości</label>
           <textarea
             name="message"
             required
@@ -183,12 +177,12 @@ export default function ContactForm() {
           disabled={sending}
           className="btn btn-primary w-full transition-transform hover:scale-[1.02] disabled:opacity-60"
         >
-          {sending ? "Wysyłanie…" : "Wyślij wiadomość"}
+          {sending ? 'Wysyłanie…' : 'Wyślij wiadomość'}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-gray-500">
-        Lub napisz bezpośrednio:{" "}
+        Lub napisz bezpośrednio:{' '}
         <a
           href="mailto:serwisvans@gmail.com"
           className="font-medium text-brand-600 hover:underline"
@@ -197,27 +191,29 @@ export default function ContactForm() {
         </a>
       </p>
 
-      <section className="mt-8 rounded-2xl border bg-gray-50 p-6 text-[10px] text-gray-700 shadow-inner leading-relaxed">
-        <p><strong>VANS SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ</strong></p>
+      <section className="mt-8 rounded-2xl border bg-gray-50 p-6 text-[10px] leading-relaxed text-gray-700 shadow-inner">
+        <p>
+          <strong>VANS SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ</strong>
+        </p>
         <p>NIP: 7011068577</p>
         <p>KRS: 0000945541</p>
         <p>Kapitał zakładowy: 5 000,00 zł</p>
         <p>Adres: UL. STANISŁAWA WOJCIECHOWSKIEGO 33 / 7, 02-495 WARSZAWA</p>
       </section>
       {/* MAPA — Google Maps embed */}
-<div className="mt-4 overflow-hidden rounded-2xl border">
-  <iframe
-    title="Mapa — VANS Sp. z o.o."
-    src={
-      "https://www.google.com/maps?q=" +
-      encodeURIComponent("UL. STANISŁAWA WOJCIECHOWSKIEGO 33, 02-495 WARSZAWA") +
-      "&output=embed"
-    }
-    loading="lazy"
-    referrerPolicy="no-referrer-when-downgrade"
-    className="h-64 w-full"
-  />
-</div>
+      <div className="mt-4 overflow-hidden rounded-2xl border">
+        <iframe
+          title="Mapa — VANS Sp. z o.o."
+          src={
+            'https://www.google.com/maps?q=' +
+            encodeURIComponent('UL. STANISŁAWA WOJCIECHOWSKIEGO 33, 02-495 WARSZAWA') +
+            '&output=embed'
+          }
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          className="h-64 w-full"
+        />
+      </div>
     </main>
   );
 }

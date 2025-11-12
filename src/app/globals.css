@@ -15,14 +15,14 @@
   @apply inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium transition active:translate-y-[1px];
 }
 .btn-primary {
-  @apply bg-brand-500 text-white hover:bg-brand-600 shadow-soft;
+  @apply bg-brand-500 text-white shadow-soft hover:bg-brand-600;
 }
 .btn-secondary {
-  @apply bg-white text-gray-900 border hover:bg-gray-50;
+  @apply border bg-white text-gray-900 hover:bg-gray-50;
 }
 .btn-ghost {
-  @apply bg-white border hover:bg-gray-50;
+  @apply border bg-white hover:bg-gray-50;
 }
 .nav-link {
-  @apply text-sm text-gray-700 hover:text-brand-600 px-3 py-2 rounded-lg;
+  @apply rounded-lg px-3 py-2 text-sm text-gray-700 hover:text-brand-600;
 }

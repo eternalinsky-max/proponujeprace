@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from 'firebase/auth';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+import { auth } from '@/lib/firebase';
 
 export default function RequireAuth({ children }) {
   const router = useRouter();
@@ -16,8 +17,7 @@ export default function RequireAuth({ children }) {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        const next =
-          pathname + (searchParams.toString() ? `?${searchParams}` : "");
+        const next = pathname + (searchParams.toString() ? `?${searchParams}` : '');
         router.replace(`/login?next=${encodeURIComponent(next)}`);
       } else {
         setAuthed(true);

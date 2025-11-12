@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
-export default function ContactForm({ className = "" }) {
+export default function ContactForm({ className = '' }) {
   const [startedAt, setStartedAt] = useState(Date.now());
   const [sending, setSending] = useState(false);
   const [ok, setOk] = useState(false);
-  const [err, setErr] = useState("");
+  const [err, setErr] = useState('');
 
   useEffect(() => setStartedAt(Date.now()), []);
 
@@ -14,22 +14,22 @@ export default function ContactForm({ className = "" }) {
     e.preventDefault();
     setSending(true);
     setOk(false);
-    setErr("");
+    setErr('');
 
     const fd = new FormData(e.currentTarget);
     const payload = {
-      name: fd.get("name"),
-      email: fd.get("email"),
-      message: fd.get("message"),
-      website: fd.get("website"),              // honeypot (hidden)
-      startedAt,                               // time trap
-      termsAccepted: fd.get("terms") === "on", // checkbox
+      name: fd.get('name'),
+      email: fd.get('email'),
+      message: fd.get('message'),
+      website: fd.get('website'), // honeypot (hidden)
+      startedAt, // time trap
+      termsAccepted: fd.get('terms') === 'on', // checkbox
     };
 
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
@@ -40,7 +40,7 @@ export default function ContactForm({ className = "" }) {
       e.currentTarget.reset();
       setStartedAt(Date.now()); // нова сесія форми
     } catch (e) {
-      setErr(e.message || "Wystąpił błąd");
+      setErr(e.message || 'Wystąpił błąd');
     } finally {
       setSending(false);
     }
@@ -106,12 +106,8 @@ export default function ContactForm({ className = "" }) {
         Wyrażam zgodę na kontakt w sprawie mojego zapytania.
       </label>
 
-      <button
-        type="submit"
-        disabled={sending}
-        className="btn btn-primary"
-      >
-        {sending ? "Wysyłanie…" : "Wyślij wiadomość"}
+      <button type="submit" disabled={sending} className="btn btn-primary">
+        {sending ? 'Wysyłanie…' : 'Wyślij wiadomość'}
       </button>
     </form>
   );

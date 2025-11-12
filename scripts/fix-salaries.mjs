@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // scripts/fix-salaries.mjs
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
@@ -19,10 +20,10 @@ async function main() {
 
   // 2) Оновлюємо “завеликі” значення без вибірки (RAW SQL, працює навіть коли findMany ламається)
   const res1 = await prisma.$executeRawUnsafe(
-    `UPDATE Job SET salaryMax = NULL WHERE salaryMax > ${INT_MAX}`,
+    `UPDATE job SET salaryMax = NULL WHERE salaryMax > ${INT_MAX}`,
   );
   const res2 = await prisma.$executeRawUnsafe(
-    `UPDATE Job SET salaryMin = NULL WHERE salaryMin > ${INT_MAX}`,
+    `UPDATE job SET salaryMin = NULL WHERE salaryMin > ${INT_MAX}`,
   );
   console.log(`Fixed salaryMax (set NULL) rows: ${res1}`);
   console.log(`Fixed salaryMin (set NULL) rows: ${res2}`);
@@ -42,10 +43,13 @@ async function main() {
   );
 }
 
-main()
-  .then(() => prisma.$disconnect())
-  .catch(async (e) => {
+(async () => {
+  try {
+    await main();
+  } catch (e) {
     console.error("Fix script error:", e);
-    await prisma.$disconnect();
     process.exit(1);
-  });
+  } finally {
+    await prisma.$disconnect();
+  }
+})();

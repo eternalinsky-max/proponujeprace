@@ -1,16 +1,17 @@
 // src/app/api/jobs/[id]/route.js
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { verifyFirebaseToken } from "@/lib/auth";
+import { NextResponse } from 'next/server';
+
+import { verifyFirebaseToken } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 /** GET /api/jobs/[id] — деталі вакансії */
 export async function GET(_req, { params }) {
   try {
     const id = params?.id;
-    if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+    if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
 
     const job = await prisma.job.findUnique({
       where: { id },
@@ -35,12 +36,12 @@ export async function GET(_req, { params }) {
       },
     });
 
-    if (!job) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!job) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     return NextResponse.json(job, { status: 200 });
   } catch (e) {
-    console.error("GET /api/jobs/[id] error:", e);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.error('GET /api/jobs/[id] error:', e);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
 
@@ -48,42 +49,42 @@ export async function GET(_req, { params }) {
 export async function PUT(req, { params }) {
   try {
     const id = params?.id;
-    if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+    if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
 
     // auth
-    const authHeader = req.headers.get("authorization") || "";
-    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const authHeader = req.headers.get('authorization') || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
     const decoded = await verifyFirebaseToken(token);
-    if (!decoded) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!decoded) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const me = await prisma.user.findUnique({
       where: { firebaseUid: decoded.uid },
       select: { id: true },
     });
-    if (!me) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (!me) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     // перевір власність
     const existing = await prisma.job.findUnique({
       where: { id },
       select: { ownerId: true },
     });
-    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     if (existing.ownerId !== me.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const body = await req.json().catch(() => ({}));
 
-    const title = String(body.title || "").trim();
-    const description = String(body.description || "");
+    const title = String(body.title || '').trim();
+    const description = String(body.description || '');
     const isRemote = !!body.isRemote;
-    const city = isRemote ? null : (String(body.city || "").trim() || null);
+    const city = isRemote ? null : String(body.city || '').trim() || null;
     const salaryMin = body.salaryMin == null ? null : Number(body.salaryMin);
     const salaryMax = body.salaryMax == null ? null : Number(body.salaryMax);
-    const companyName = String(body.companyName || "").trim();
+    const companyName = String(body.companyName || '').trim();
 
     if (!title || title.length < 3) {
-      return NextResponse.json({ error: "Title too short" }, { status: 400 });
+      return NextResponse.json({ error: 'Title too short' }, { status: 400 });
     }
     if (
       salaryMin != null &&
@@ -92,14 +93,18 @@ export async function PUT(req, { params }) {
       Number.isFinite(salaryMax) &&
       salaryMax < salaryMin
     ) {
-      return NextResponse.json({ error: "salaryMax < salaryMin" }, { status: 400 });
+      return NextResponse.json({ error: 'salaryMax < salaryMin' }, { status: 400 });
     }
 
     // якщо передали companyName — оновимо/створимо компанію і зв'яжемо
     let companyId = undefined;
     if (companyName) {
       const company = await prisma.company.upsert({
-        where: { id: (await prisma.company.findFirst({ where: { name: companyName }, select: { id: true } }))?.id || "__none__" },
+        where: {
+          id:
+            (await prisma.company.findFirst({ where: { name: companyName }, select: { id: true } }))
+              ?.id || '__none__',
+        },
         create: {
           id: crypto.randomUUID(),
           name: companyName,
@@ -145,7 +150,7 @@ export async function PUT(req, { params }) {
 
     return NextResponse.json(updated, { status: 200 });
   } catch (e) {
-    console.error("PUT /api/jobs/[id] error:", e);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.error('PUT /api/jobs/[id] error:', e);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

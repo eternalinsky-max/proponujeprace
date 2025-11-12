@@ -4,21 +4,22 @@ export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import { z } from "zod";
+
 import { sendMail } from "@/lib/mailer";
-import { limitByKey } from "@/lib/rateLimit"; // якщо Upstash не налаштований — функція пропустить
 import { prisma } from "@/lib/prisma";
+import { limitByKey } from "@/lib/rateLimit"; // якщо Upstash не налаштований — функція пропустить
 
 const bodySchema = z.object({
   name: z.string().trim().min(2).max(100),
   email: z.string().trim().email().max(200),
   message: z.string().trim().min(10).max(5000),
-  website: z.string().optional(),         // honeypot
-  startedAt: z.number().optional(),       // time-trap
-  termsAccepted: z.boolean().optional(),  // checkbox
+  website: z.string().optional(), // honeypot
+  startedAt: z.number().optional(), // time-trap
+  termsAccepted: z.boolean().optional(), // checkbox
 });
 
-const MIN_TIME_MS = 5000;                   // min 5s
-const MAX_TIME_MS = 1000 * 60 * 60 * 2;     // max 2h
+const MIN_TIME_MS = 5000; // min 5s
+const MAX_TIME_MS = 1000 * 60 * 60 * 2; // max 2h
 
 function getClientIp(req) {
   const h = req.headers;
@@ -73,6 +74,7 @@ async function logContact({
       },
     });
   } catch (e) {
+    // лог падіння логування, але не зриваємо основний флоу
     console.error("contact log error:", e);
   }
 }
@@ -87,6 +89,7 @@ export async function POST(req) {
     const rate = await limitByKey(`ip:${ip}`);
     if (!rate.success) {
       const retrySec = Math.max(1, Math.ceil((rate.reset - now) / 1000));
+
       await logContact({
         ip,
         userAgent: ua,
@@ -100,7 +103,7 @@ export async function POST(req) {
 
       const res = NextResponse.json(
         { error: "Too many requests. Please try again later." },
-        { status: 429 }
+        { status: 429 },
       );
       res.headers.set("Retry-After", String(retrySec));
       res.headers.set("X-RateLimit-Limit", String(rate.limit));
@@ -115,7 +118,7 @@ export async function POST(req) {
     if (!parsed.success) {
       const res = NextResponse.json(
         { error: "Bad request", issues: parsed.error.flatten() },
-        { status: 400 }
+        { status: 400 },
       );
       if (rate.limit != null) {
         res.headers.set("X-RateLimit-Limit", String(rate.limit));
@@ -138,6 +141,7 @@ export async function POST(req) {
         spam: true,
         success: false,
       });
+
       const res = NextResponse.json({ ok: true, spam: true }, { status: 200 });
       if (rate.limit != null) {
         res.headers.set("X-RateLimit-Limit", String(rate.limit));
@@ -150,6 +154,7 @@ export async function POST(req) {
     // 4) Time-trap
     if (typeof startedAt === "number") {
       const delta = now - startedAt;
+
       if (delta < MIN_TIME_MS) {
         await logContact({
           ip,
@@ -160,6 +165,7 @@ export async function POST(req) {
           success: false,
           error: "Too fast",
         });
+
         const res = NextResponse.json({ error: "Too fast" }, { status: 429 });
         res.headers.set("Retry-After", "5");
         if (rate.limit != null) {
@@ -169,6 +175,7 @@ export async function POST(req) {
         }
         return res;
       }
+
       if (delta > MAX_TIME_MS) {
         await logContact({
           ip,
@@ -179,6 +186,7 @@ export async function POST(req) {
           success: false,
           error: "Form expired",
         });
+
         const res = NextResponse.json({ error: "Form expired" }, { status: 400 });
         if (rate.limit != null) {
           res.headers.set("X-RateLimit-Limit", String(rate.limit));
@@ -200,6 +208,7 @@ export async function POST(req) {
         success: false,
         error: "Terms must be accepted",
       });
+
       const res = NextResponse.json({ error: "Terms must be accepted" }, { status: 400 });
       if (rate.limit != null) {
         res.headers.set("X-RateLimit-Limit", String(rate.limit));
@@ -212,8 +221,7 @@ export async function POST(req) {
     // 6) Compose & send
     const to = process.env.SUPPORT_EMAIL || "serwisvans@gmail.com";
     const subject = `Kontakt z proponujeprace.pl — ${name}`;
-    const text =
-`Imię i nazwisko: ${name}
+    const text = `Imię i nazwisko: ${name}
 Email: ${email}
 IP: ${ip}
 
@@ -270,7 +278,10 @@ ${message}`;
         success: false,
         error: e?.message || "Server error",
       });
-    } catch {}
+    } catch (logErr) {
+      // залишаємо без ескалації, щоб не затирати основну помилку
+      console.error("logContact failed:", logErr);
+    }
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

@@ -1,7 +1,7 @@
 // src/lib/firebase-client.js
-import { getApps, getApp, initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getAnalytics, isSupported as analyticsIsSupported } from "firebase/analytics";
+import { getAnalytics, isSupported as analyticsIsSupported } from 'firebase/analytics';
+import { getApp, getApps, initializeApp } from 'firebase/app';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 // Конфіг з .env (NEXT_PUBLIC_*)
 const firebaseConfig = {
@@ -23,8 +23,10 @@ export const googleProvider = new GoogleAuthProvider();
 
 // Analytics — тільки в браузері й коли підтримується
 export let analytics;
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   analyticsIsSupported()
-    .then((ok) => { if (ok) analytics = getAnalytics(app); })
+    .then((ok) => {
+      if (ok) analytics = getAnalytics(app);
+    })
     .catch(() => {});
 }

@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
+import Image from 'next/image';
+import Link from 'next/link';
 
 /**
  * UserChip — маленький чип з аватаром і ім'ям користувача.
@@ -16,19 +16,19 @@ import Image from "next/image";
  */
 export default function UserChip({
   id,
-  name = "Użytkownik",
+  name = 'Użytkownik',
   photoUrl = null,
-  hrefBase = "/users",
+  hrefBase = '/users',
   size = 24,
-  className = "",
+  className = '',
 }) {
   const initials =
-    (name || "U")
+    (name || 'U')
       .trim()
       .split(/\s+/)
       .slice(0, 2)
       .map((s) => s[0]?.toUpperCase())
-      .join("") || "U";
+      .join('') || 'U';
 
   const chip = (
     <span className={`inline-flex items-center gap-2 ${className}`}>

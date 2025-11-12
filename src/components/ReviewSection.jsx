@@ -1,22 +1,24 @@
-"use client";
+// src/components/ReviewSection.jsx
+'use client';
 
-import { useState } from "react";
-import { useAuthUser } from "@/lib/useAuthUser";
-import { useReviews } from "@/lib/useReviews";
-import Stars from "@/components/Stars";
-import UserChip from "@/components/UserChip";
+import { useState } from 'react';
+
+import Stars from '@/components/Stars';
+import UserChip from '@/components/UserChip';
+import { useAuthUser } from '@/lib/useAuthUser';
+import { useReviews } from '@/lib/useReviews';
 
 const LABELS = {
-  JOB: "Oceń ofertę",
-  COMPANY: "Oceń firmę",
-  USER: "Oceń pracownika",
+  JOB: 'Oceń ofertę',
+  COMPANY: 'Oceń firmę',
+  USER: 'Oceń pracownika',
 };
 
 export default function ReviewSection({ targetType, targetId }) {
   const { user, loading } = useAuthUser();
   const [open, setOpen] = useState(false);
   const [score, setScore] = useState(5);
-  const [text, setText] = useState("");
+  const [text, setText] = useState('');
 
   const {
     items,
@@ -27,13 +29,13 @@ export default function ReviewSection({ targetType, targetId }) {
     nextPage,
     prevPage,
     upsertReview,
-    deleteReview,
+    // deleteReview, // якщо потрібно — поверни та розкоментуй кнопку нижче
     reload,
   } = useReviews({ targetType, targetId, perPage: 10 });
 
   async function submit() {
     await upsertReview({ ratingOverall: score, text });
-    setText("");
+    setText('');
     setOpen(false);
   }
 
@@ -43,15 +45,13 @@ export default function ReviewSection({ targetType, targetId }) {
         <h2 className="text-lg font-semibold">Opinie</h2>
 
         {!loading && user ? (
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ? "Anuluj" : LABELS[targetType] || "Dodaj opinię"}
+          <button type="button" className="btn btn-primary" onClick={() => setOpen((v) => !v)}>
+            {open ? 'Anuluj' : LABELS[targetType] || 'Dodaj opinię'}
           </button>
         ) : (
-          <a href="/login" className="btn btn-secondary">Zaloguj się, aby dodać opinię</a>
+          <a href="/login" className="btn btn-secondary">
+            Zaloguj się, aby dodać opinię
+          </a>
         )}
       </div>
 
@@ -92,7 +92,7 @@ export default function ReviewSection({ targetType, targetId }) {
         <div className="space-y-3">
           {items.map((r) => {
             const authorId = r.User?.id || null;
-            const authorName = r.User?.displayName || "Użytkownik";
+            const authorName = r.User?.displayName || 'Użytkownik';
             const authorPhoto = r.User?.photoUrl || null;
 
             return (
@@ -100,7 +100,7 @@ export default function ReviewSection({ targetType, targetId }) {
                 <div className="flex items-center justify-between">
                   <UserChip id={authorId} name={authorName} photoUrl={authorPhoto} />
                   <div className="text-xs text-gray-500">
-                    {new Date(r.createdAt).toLocaleDateString("pl-PL")}
+                    {new Date(r.createdAt).toLocaleDateString('pl-PL')}
                   </div>
                 </div>
                 <div className="mt-1 text-sm">Ocena: {r.ratingOverall}/5</div>

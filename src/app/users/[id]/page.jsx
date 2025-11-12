@@ -1,11 +1,12 @@
 // src/app/users/[id]/page.jsx
-import Image from "next/image";
-import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import ReviewSection from "@/components/ReviewSection";
-import RatingBadge from "@/components/RatingBadge";
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
 
-export const dynamic = "force-dynamic";
+import RatingBadge from '@/components/RatingBadge';
+import ReviewSection from '@/components/ReviewSection';
+import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
 
 async function getUserPublic(id) {
   if (!id) return null;
@@ -22,8 +23,8 @@ async function getUserPublic(id) {
         ratingWorkerCount: true,
         // тизер останніх відгуків
         Review: {
-          where: { targetType: "USER", targetId: id, isHidden: false },
-          orderBy: { createdAt: "desc" },
+          where: { targetType: 'USER', targetId: id, isHidden: false },
+          orderBy: { createdAt: 'desc' },
           take: 5,
           select: {
             id: true,
@@ -42,15 +43,15 @@ async function getUserPublic(id) {
 
 export async function generateMetadata({ params }) {
   const u = await getUserPublic(params.id);
-  if (!u) return { title: "Użytkownik nie został znaleziony" };
-  return { title: `${u.displayName || "Użytkownik"} | proponujeprace.pl` };
+  if (!u) return { title: 'Użytkownik nie został znaleziony' };
+  return { title: `${u.displayName || 'Użytkownik'} | proponujeprace.pl` };
 }
 
 export default async function UserProfilePublicPage({ params }) {
   const u = await getUserPublic(params.id);
   if (!u) notFound();
 
-  const name = u.displayName || "Użytkownik";
+  const name = u.displayName || 'Użytkownik';
 
   return (
     <section className="px-4 py-6 sm:px-6">
@@ -68,7 +69,7 @@ export default async function UserProfilePublicPage({ params }) {
                 className="rounded-full border bg-white object-cover"
               />
             ) : (
-              <div className="grid h-[72px] w-[72px] place-items-center rounded-full border bg-gray-50 text-sm text-gray-600">
+              <div className="grid size-[72px] place-items-center rounded-full border bg-gray-50 text-sm text-gray-600">
                 {name.slice(0, 2).toUpperCase()}
               </div>
             )}
@@ -77,13 +78,10 @@ export default async function UserProfilePublicPage({ params }) {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="truncate text-xl font-bold">{name}</h1>
-              <RatingBadge
-                avg={Number(u.ratingWorkerAvg)}
-                count={Number(u.ratingWorkerCount)}
-              />
+              <RatingBadge avg={Number(u.ratingWorkerAvg)} count={Number(u.ratingWorkerCount)} />
             </div>
             <div className="mt-1 text-xs text-gray-500">
-              Na platformie od: {new Date(u.createdAt).toLocaleDateString("pl-PL")}
+              Na platformie od: {new Date(u.createdAt).toLocaleDateString('pl-PL')}
             </div>
           </div>
         </div>
@@ -98,11 +96,9 @@ export default async function UserProfilePublicPage({ params }) {
               {u.Review.map((r) => (
                 <li key={r.id} className="p-3">
                   <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium">
-                      {r.User?.displayName || "Użytkownik"}
-                    </div>
+                    <div className="text-sm font-medium">{r.User?.displayName || 'Użytkownik'}</div>
                     <div className="text-xs text-gray-500">
-                      {new Date(r.createdAt).toLocaleDateString("pl-PL")}
+                      {new Date(r.createdAt).toLocaleDateString('pl-PL')}
                     </div>
                   </div>
                   <div className="mt-1 text-sm">Ocena: {r.ratingOverall}/5</div>

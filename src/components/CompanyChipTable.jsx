@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
+import Image from 'next/image';
+import Link from 'next/link';
 
 /**
  * CompanyChipTable — мінімалістичний варіант для таблиць або списків.
@@ -16,24 +16,22 @@ import Image from "next/image";
  */
 export default function CompanyChipTable({
   id,
-  name = "Firma",
+  name = 'Firma',
   logoUrl = null,
-  hrefBase = "/companies",
+  hrefBase = '/companies',
   size = 18,
-  className = "",
+  className = '',
 }) {
   const initials =
-    (name || "F")
+    (name || 'F')
       .trim()
       .split(/\s+/)
       .slice(0, 2)
       .map((s) => s[0]?.toUpperCase())
-      .join("") || "F";
+      .join('') || 'F';
 
   const content = (
-    <span
-      className={`inline-flex items-center gap-1 truncate text-sm text-gray-700 ${className}`}
-    >
+    <span className={`inline-flex items-center gap-1 truncate text-sm text-gray-700 ${className}`}>
       {logoUrl ? (
         <Image
           src={logoUrl}
@@ -52,15 +50,12 @@ export default function CompanyChipTable({
           {initials}
         </span>
       )}
-      <span className="truncate max-w-[160px] align-middle">{name}</span>
+      <span className="max-w-[160px] truncate align-middle">{name}</span>
     </span>
   );
 
   return id ? (
-    <Link
-      href={`${hrefBase}/${id}`}
-      className="hover:text-brand-600 hover:underline"
-    >
+    <Link href={`${hrefBase}/${id}`} className="hover:text-brand-600 hover:underline">
       {content}
     </Link>
   ) : (

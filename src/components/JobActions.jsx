@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { useAuthUser } from "@/lib/useAuthUser";
-import { auth } from "@/lib/firebase";
+import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
+
+import { auth } from '@/lib/firebase';
+import { useAuthUser } from '@/lib/useAuthUser';
 
 /**
  * Кнопки дій над вакансією: Edytuj / Usuń
@@ -39,14 +40,14 @@ export default function JobActions({ jobId, job }) {
         }
         setChecking(true);
         const token = await user.getIdToken();
-        const res = await fetch("/api/auth/me", {
+        const res = await fetch('/api/auth/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (!cancelled) setMe(data);
       } catch (e) {
-        console.error("JobActions /api/auth/me error:", e);
+        console.error('JobActions /api/auth/me error:', e);
         if (!cancelled) setMe(null);
       } finally {
         if (!cancelled) setChecking(false);
@@ -83,17 +84,17 @@ export default function JobActions({ jobId, job }) {
   if (!canEdit) return null;
 
   async function handleDelete() {
-    if (!confirm("Usunąć tę ofertę?")) return;
+    if (!confirm('Usunąć tę ofertę?')) return;
     try {
       setDeleting(true);
       const u = auth.currentUser;
       const token = u ? await u.getIdToken(true) : null;
       if (!token) {
-        alert("Najpierw zaloguj się.");
+        alert('Najpierw zaloguj się.');
         return;
       }
       const res = await fetch(`/api/jobs/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
@@ -101,10 +102,10 @@ export default function JobActions({ jobId, job }) {
         throw new Error(data.error || `HTTP ${res.status}`);
       }
       // Після видалення — на список
-      window.location.href = "/jobs";
+      window.location.href = '/jobs';
     } catch (e) {
-      console.error("DELETE job error:", e);
-      alert(`Błąd usuwania: ${e.message || "nieznany"}`);
+      console.error('DELETE job error:', e);
+      alert(`Błąd usuwania: ${e.message || 'nieznany'}`);
     } finally {
       setDeleting(false);
     }
@@ -115,13 +116,8 @@ export default function JobActions({ jobId, job }) {
       <Link href={`/jobs/${id}/edit`} className="btn btn-secondary">
         Edytuj
       </Link>
-      <button
-        type="button"
-        className="btn btn-danger"
-        onClick={handleDelete}
-        disabled={deleting}
-      >
-        {deleting ? "Usuwanie…" : "Usuń"}
+      <button type="button" className="btn btn-danger" onClick={handleDelete} disabled={deleting}>
+        {deleting ? 'Usuwanie…' : 'Usuń'}
       </button>
     </div>
   );

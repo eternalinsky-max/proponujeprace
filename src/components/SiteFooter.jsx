@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
-  Facebook,
-  Instagram,
-  Linkedin,
-  Home,
-  Leaf,
   Briefcase,
-  Handshake,
+  Facebook,
   Hammer,
+  Handshake,
+  Home,
+  Instagram,
+  Leaf,
+  Linkedin,
   Sunrise,
-} from "lucide-react";
-import { useMemo } from "react";
+} from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useMemo } from 'react';
 
 function hashString(s) {
   // простий детермінований хеш (без Math.random / Date.now)
@@ -26,7 +26,7 @@ function hashString(s) {
 
 export default function SiteFooter() {
   const year = new Date().getFullYear();
-  const pathname = usePathname() || "/";
+  const pathname = usePathname() || '/';
 
   // 🧠 детермінований вибір іконки за шляхом
   const icons = [Home, Leaf, Briefcase, Handshake, Hammer, Sunrise];
@@ -44,19 +44,37 @@ export default function SiteFooter() {
         </div>
 
         <nav className="mt-4 flex flex-wrap items-center gap-4 text-sm sm:mt-0">
-          <Link href="/terms" className="hover:text-white transition">Regulamin</Link>
-          <Link href="/privacy" className="hover:text-white transition">Polityka prywatności</Link>
-          <Link href="/contact" className="hover:text-white transition">Kontakt</Link>
+          <Link href="/terms" className="transition hover:text-white">
+            Regulamin
+          </Link>
+          <Link href="/privacy" className="transition hover:text-white">
+            Polityka prywatności
+          </Link>
+          <Link href="/contact" className="transition hover:text-white">
+            Kontakt
+          </Link>
         </nav>
 
         <div className="mt-4 flex items-center gap-4 sm:mt-0">
-          <Link href="https://facebook.com" target="_blank" className="hover:text-blue-400 transition">
+          <Link
+            href="https://facebook.com"
+            target="_blank"
+            className="transition hover:text-blue-400"
+          >
             <Facebook className="size-5" />
           </Link>
-          <Link href="https://instagram.com" target="_blank" className="hover:text-pink-400 transition">
+          <Link
+            href="https://instagram.com"
+            target="_blank"
+            className="transition hover:text-pink-400"
+          >
             <Instagram className="size-5" />
           </Link>
-          <Link href="https://linkedin.com" target="_blank" className="hover:text-sky-400 transition">
+          <Link
+            href="https://linkedin.com"
+            target="_blank"
+            className="transition hover:text-sky-400"
+          >
             <Linkedin className="size-5" />
           </Link>
         </div>
@@ -64,13 +82,13 @@ export default function SiteFooter() {
 
       {/* детермінований блок — без гідраційних розбіжностей */}
       <div
-        className="border-t border-gray-700 text-center py-4 text-sm text-gray-400 italic flex justify-center items-center gap-2"
+        className="flex items-center justify-center gap-2 border-t border-gray-700 py-4 text-center text-sm italic text-gray-400"
         suppressHydrationWarning
       >
         <Icon className="size-4 text-gray-500" />
         <span>
-          „Cokolwiek czynicie, z duszy wykonujcie, jak dla Pana, a nie dla ludzi.” — Кол. 3:23
-        </span>
+          Cokolwiek czynicie, z duszy wykonujcie...
+                  </span>
       </div>
     </footer>
   );

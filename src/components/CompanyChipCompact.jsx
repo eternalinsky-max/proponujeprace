@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import Link from 'next/link';
 
 /**
  * CompanyChipCompact — мінімальний варіант чипа (тільки іконка + назва).
@@ -17,25 +17,25 @@ import { motion } from "framer-motion";
  */
 export default function CompanyChipCompact({
   id,
-  name = "Firma",
+  name = 'Firma',
   logoUrl = null,
-  hrefBase = "/companies",
+  hrefBase = '/companies',
   size = 20,
-  className = "",
+  className = '',
 }) {
   const initials =
-    (name || "F")
+    (name || 'F')
       .trim()
       .split(/\s+/)
       .slice(0, 2)
       .map((s) => s[0]?.toUpperCase())
-      .join("") || "F";
+      .join('') || 'F';
 
   const chip = (
     <motion.span
       whileHover={{ scale: 1.04 }}
       whileTap={{ scale: 0.97 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       className={`inline-flex items-center gap-1.5 ${className}`}
     >
       {logoUrl ? (

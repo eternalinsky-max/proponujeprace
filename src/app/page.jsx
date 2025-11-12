@@ -1,16 +1,17 @@
 // src/app/page.jsx
-import Link from "next/link";
-import Image from "next/image";
-import { prisma } from "@/lib/prisma";
-import JobCardList from "@/components/JobCardList";
+import Image from 'next/image';
+import Link from 'next/link';
 
-export const runtime = "nodejs";       // важливо: Prisma працює у Node, не на Edge
-export const dynamic = "force-dynamic"; // щоб список був свіжим на кожен запит
+import JobCardList from '@/components/JobCardList';
+import { prisma } from '@/lib/prisma';
+
+export const runtime = 'nodejs'; // важливо: Prisma працює у Node, не на Edge
+export const dynamic = 'force-dynamic'; // щоб список був свіжим на кожен запит
 
 async function getLatestJobs() {
   return prisma.job.findMany({
-    where: { status: "ACTIVE" },
-    orderBy: { createdAt: "desc" },
+    where: { status: 'ACTIVE' },
+    orderBy: { createdAt: 'desc' },
     take: 8,
     select: {
       id: true,
@@ -40,17 +41,21 @@ export default async function HomePage() {
           {/* Текст */}
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl">
-              Znajdź pracę szybciej. <span className="text-brand-600">Dodaj</span>, oceniaj, aplikuj.
+              Znajdź pracę szybciej. <span className="text-brand-600">Dodaj</span>, oceniaj,
+              aplikuj.
             </h1>
             <p className="mt-3 max-w-2xl text-gray-600">
-              Prosty portal ogłoszeń pracy dla Polski. Rejestracja przez Google lub telefon.
-              Oceny pracodawców i pracowników.
+              Prosty portal ogłoszeń pracy dla Polski. Rejestracja przez Google lub telefon. Oceny
+              pracodawców i pracowników.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="/jobs" className="btn btn-primary transition-transform hover:scale-105">
                 Przeglądaj oferty
               </Link>
-              <Link href="/post-job" className="btn btn-secondary transition-transform hover:scale-105">
+              <Link
+                href="/post-job"
+                className="btn btn-secondary transition-transform hover:scale-105"
+              >
                 Dodaj ofertę
               </Link>
             </div>
@@ -77,7 +82,7 @@ export default async function HomePage() {
       <div className="grid gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Najnowsze oferty</h2>
-          <Link href="/jobs" className="text-sm text-brand-700 hover:underline">
+          <Link href="/jobs" className="text-brand-700 text-sm hover:underline">
             Zobacz wszystkie →
           </Link>
         </div>
@@ -86,7 +91,7 @@ export default async function HomePage() {
           <JobCardList jobs={latestJobs} defaultView="list" />
         ) : (
           <div className="rounded-xl border bg-white p-6 text-gray-600">
-            Brak nowych ofert.{" "}
+            Brak nowych ofert.{' '}
             <Link href="/post-job" className="text-brand-700 hover:underline">
               Dodaj pierwszą!
             </Link>

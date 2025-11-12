@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import RatingStars from "@/components/RatingStars";
-import { auth } from "@/lib/firebase";
+import { useState } from 'react';
+
+import RatingStars from '@/components/RatingStars';
+import { auth } from '@/lib/firebase';
 
 export default function ReviewForm({ targetType, targetId, onSubmitted }) {
   const [overall, setOverall] = useState(5);
@@ -10,17 +11,17 @@ export default function ReviewForm({ targetType, targetId, onSubmitted }) {
   const [culture, setCulture] = useState(0);
   const [balance, setBalance] = useState(0);
   const [clarity, setClarity] = useState(0);
-  const [text, setText] = useState("");
+  const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
+  const [err, setErr] = useState('');
 
   async function submit() {
     try {
       setBusy(true);
-      setErr("");
+      setErr('');
 
       const token = await auth.currentUser?.getIdToken(true);
-      if (!token) throw new Error("Brak autoryzacji");
+      if (!token) throw new Error('Brak autoryzacji');
 
       const payload = {
         targetType,
@@ -33,10 +34,10 @@ export default function ReviewForm({ targetType, targetId, onSubmitted }) {
         ratingClarity: clarity || null,
       };
 
-      const res = await fetch("/api/reviews", {
-        method: "POST",
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
@@ -48,9 +49,9 @@ export default function ReviewForm({ targetType, targetId, onSubmitted }) {
       }
 
       onSubmitted?.();
-      setText("");
+      setText('');
     } catch (e) {
-      setErr(e.message || "Błąd");
+      setErr(e.message || 'Błąd');
     } finally {
       setBusy(false);
     }
@@ -94,13 +95,8 @@ export default function ReviewForm({ targetType, targetId, onSubmitted }) {
       {err && <div className="mt-2 text-sm text-red-600">{err}</div>}
 
       <div className="mt-3">
-        <button
-          type="button"
-          disabled={busy}
-          onClick={submit}
-          className="btn btn-primary"
-        >
-          {busy ? "Zapisywanie…" : "Zapisz opinię"}
+        <button type="button" disabled={busy} onClick={submit} className="btn btn-primary">
+          {busy ? 'Zapisywanie…' : 'Zapisz opinię'}
         </button>
       </div>
     </div>

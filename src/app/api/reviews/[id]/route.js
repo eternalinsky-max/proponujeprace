@@ -3,8 +3,12 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+
 import { verifyFirebaseToken } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+const PRIOR_MEAN = 4.0;
+const PRIOR_WEIGHT = 5;
 
 async function recomputeAfter(targetType, targetId) {
   const where = { targetType, targetId, isHidden: false };
@@ -17,10 +21,6 @@ async function recomputeAfter(targetType, targetId) {
   const count = agg._count._all || 0;
   const sum = agg._sum.ratingOverall || 0;
   const avg = count > 0 ? sum / count : 0;
-
-  // ті самі параметри, що й у загальному роуті:
-  const PRIOR_MEAN = 4.0;
-  const PRIOR_WEIGHT = 5;
   const bayesScore = (PRIOR_WEIGHT * PRIOR_MEAN + count * avg) / (PRIOR_WEIGHT + count);
 
   if (targetType === "JOB") {
@@ -48,14 +48,18 @@ async function recomputeAfter(targetType, targetId) {
 
 export async function DELETE(req, { params }) {
   try {
+    // auth
     const authHeader = req.headers.get("authorization") || "";
-    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const m = authHeader.match(/^Bearer\s+(.+)$/i);
+    const token = m?.[1] || null;
+
     const decoded = await verifyFirebaseToken(token);
     if (!decoded) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const id = params?.id;
+    const id = String(params?.id || "").trim();
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
+    // автор
     const me = await prisma.user.findUnique({
       where: { firebaseUid: decoded.uid },
       select: { id: true },
@@ -66,7 +70,10 @@ export async function DELETE(req, { params }) {
       where: { id },
       select: { id: true, authorId: true, targetType: true, targetId: true },
     });
+
+    // Якщо відгук уже видалено — вважай успіхом (idempotent)
     if (!found) return NextResponse.json({ ok: true }, { status: 200 });
+
     if (found.authorId !== me.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }

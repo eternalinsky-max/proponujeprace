@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { usePathname,useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 
 /** За замовчуванням: Najnowsze / Najwyższa płaca / Najniższa płaca */
 const DEFAULT_OPTIONS = [
-  { key: "newest", label: "Najnowsze", sort: "createdAt", dir: "desc" },
-  { key: "pay_high", label: "Najwyższa płaca", sort: "salaryMax", dir: "desc" },
-  { key: "pay_low", label: "Najniższa płaca", sort: "salaryMin", dir: "asc" },
+  { key: 'newest', label: 'Najnowsze', sort: 'createdAt', dir: 'desc' },
+  { key: 'pay_high', label: 'Najwyższa płaca', sort: 'salaryMax', dir: 'desc' },
+  { key: 'pay_low', label: 'Najniższa płaca', sort: 'salaryMin', dir: 'asc' },
 ];
 
 /**
@@ -19,22 +19,20 @@ const DEFAULT_OPTIONS = [
  */
 export default function SortSelect({
   options = DEFAULT_OPTIONS,
-  className = "",
-  paramSort = "sort",
-  paramDir = "dir",
+  className = '',
+  paramSort = 'sort',
+  paramDir = 'dir',
 }) {
   const sp = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
-  const sort = (sp.get(paramSort) || "createdAt").trim();
-  const dir = (sp.get(paramDir) || "desc").toLowerCase();
+  const sort = (sp.get(paramSort) || 'createdAt').trim();
+  const dir = (sp.get(paramDir) || 'desc').toLowerCase();
 
   const currentKey = useMemo(
-    () =>
-      options.find((o) => o.sort === sort && o.dir === dir)?.key ||
-      options[0].key,
+    () => options.find((o) => o.sort === sort && o.dir === dir)?.key || options[0].key,
     [options, sort, dir],
   );
 
@@ -46,13 +44,13 @@ export default function SortSelect({
     const params = new URLSearchParams(sp.toString());
     params.set(paramSort, opt.sort);
     params.set(paramDir, opt.dir);
-    params.set("page", "1"); // нове сортування → перша сторінка
+    params.set('page', '1'); // нове сортування → перша сторінка
 
     const url = `${pathname}?${params.toString()}`;
     startTransition(() => {
       router.replace(url);
-      if (typeof window !== "undefined") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
   }

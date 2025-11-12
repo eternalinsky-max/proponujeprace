@@ -8,25 +8,19 @@ datasource db {
 }
 
 model Company {
-  id           String   @id
-  name         String
-  ownerId      String
-  website      String?
-  logoUrl      String?
-  verified     Boolean  @default(false)
-  createdAt    DateTime @default(now())
-
-  // 🔢 агрегати рейтингу компанії (працедавця)
-  ratingAvg    Float    @default(0)
-  ratingCount  Int      @default(0)
-  ratingSum    Int      @default(0)
-  bayesScore   Float    @default(0)
-
-  User         User     @relation(fields: [ownerId], references: [id])
-  Job          Job[]
-
-  // (опційно) якщо часто фільтруєш по власнику компанії
-  // @@index([ownerId])
+  id          String   @id
+  name        String
+  ownerId     String
+  website     String?
+  logoUrl     String?
+  verified    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  ratingAvg   Float    @default(0)
+  ratingCount Int      @default(0)
+  ratingSum   Int      @default(0)
+  bayesScore  Float    @default(0)
+  User        User     @relation(fields: [ownerId], references: [id])
+  Job         Job[]
 }
 
 model Job {
@@ -43,15 +37,12 @@ model Job {
   ownerId     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
-
-  // 🔢 агрегати рейтингу оголошення
   ratingAvg   Float    @default(0)
   ratingCount Int      @default(0)
   ratingSum   Int      @default(0)
   bayesScore  Float    @default(0)
-
-  User        User     @relation(fields: [ownerId], references: [id])
   Company     Company  @relation(fields: [companyId], references: [id])
+  User        User     @relation(fields: [ownerId], references: [id])
 
   @@index([ownerId])
   @@index([status])
@@ -63,71 +54,58 @@ model Job {
 model Review {
   id            String   @id
   authorId      String
-  // targetType: "JOB" | "COMPANY" | "USER"  (залишаємо String, щоб не ламати існуючі дані)
   targetType    String
   targetId      String
-
-  // 🔢 основний рейтинг 1..5
   ratingOverall Int
-  // 🎯 додаткові аспекти (необов’язкові) — теж 1..5
   ratingPay     Int?
   ratingCulture Int?
-  ratingBalance Int?    // work-life balance
-  ratingClarity Int?    // ясність умов / прозорість
-
+  ratingBalance Int?
+  ratingClarity Int?
   text          String
   isHidden      Boolean  @default(false)
   createdAt     DateTime @default(now())
-
   User          User     @relation(fields: [authorId], references: [id])
 
-  // 🔒 один відгук на одну ціль від одного автора
   @@unique([authorId, targetType, targetId])
-  // корисні індекси для вибірок
   @@index([targetType, targetId])
   @@index([authorId])
 }
 
 model User {
-  id                 String    @id
-  firebaseUid        String    @unique
-  email              String?   @unique
-  displayName        String?
-  phone              String?   @unique
-  photoUrl           String?
-  isAdmin            Boolean   @default(false)
-  createdAt          DateTime  @default(now())
-
-  // 🔢 агрегати, коли користувача оцінюють як працівника
-  ratingWorkerAvg         Float   @default(0)
-  ratingWorkerCount       Int     @default(0)
-  ratingWorkerSum         Int     @default(0)
-  ratingWorkerBayesScore  Float   @default(0)
-
-  Company            Company[]
-  Job                Job[]
-  Review             Review[]
+  id                     String    @id
+  firebaseUid            String    @unique
+  email                  String?   @unique
+  displayName            String?
+  phone                  String?   @unique
+  photoUrl               String?
+  isAdmin                Boolean   @default(false)
+  createdAt              DateTime  @default(now())
+  ratingWorkerAvg        Float     @default(0)
+  ratingWorkerCount      Int       @default(0)
+  ratingWorkerSum        Int       @default(0)
+  ratingWorkerBayesScore Float     @default(0)
+  Company                Company[]
+  Job                    Job[]
+  Review                 Review[]
 }
 
 model ContactMessageLog {
-  id                 String   @id @default(cuid())
-  createdAt          DateTime @default(now())
-  ip                 String
-  userAgent          String?
-  name               String
-  email              String
-  message            String
-  messageLen         Int
-  spam               Boolean  @default(false)
-  rateLimited        Boolean  @default(false)
-  success            Boolean  @default(false)
-  provider           String?
-  providerMessageId  String?
-  error              String?
-  retryAfterSec      Int?
-
-  // ✅ soft-delete (null = активний)
-  deletedAt          DateTime?
+  id                String    @id @default(cuid())
+  createdAt         DateTime  @default(now())
+  ip                String
+  userAgent         String?
+  name              String
+  email             String
+  message           String
+  messageLen        Int
+  spam              Boolean   @default(false)
+  rateLimited       Boolean   @default(false)
+  success           Boolean   @default(false)
+  provider          String?
+  providerMessageId String?
+  error             String?
+  retryAfterSec     Int?
+  deletedAt         DateTime?
 
   @@index([createdAt])
   @@index([ip])

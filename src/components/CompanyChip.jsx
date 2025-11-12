@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import Link from 'next/link';
 
 /**
  * CompanyChip — компактний чип компанії (лого + назва + лінк).
@@ -17,25 +17,25 @@ import { motion } from "framer-motion";
  */
 export default function CompanyChip({
   id,
-  name = "Firma",
+  name = 'Firma',
   logoUrl = null,
-  hrefBase = "/companies",
+  hrefBase = '/companies',
   size = 24,
-  className = "",
+  className = '',
 }) {
   const initials =
-    (name || "F")
+    (name || 'F')
       .trim()
       .split(/\s+/)
       .slice(0, 2)
       .map((s) => s[0]?.toUpperCase())
-      .join("") || "F";
+      .join('') || 'F';
 
   const chip = (
     <motion.span
-      whileHover={{ scale: 1.05, boxShadow: "0 2px 6px rgba(0,0,0,0.08)" }}
+      whileHover={{ scale: 1.05, boxShadow: '0 2px 6px rgba(0,0,0,0.08)' }}
       whileTap={{ scale: 0.97 }}
-      transition={{ type: "spring", stiffness: 260, damping: 18 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 18 }}
       className={`inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-2 py-1 shadow-sm ${className}`}
     >
       {logoUrl ? (
@@ -56,9 +56,7 @@ export default function CompanyChip({
           {initials}
         </span>
       )}
-      <span className="max-w-[220px] truncate text-sm font-medium text-gray-700">
-        {name}
-      </span>
+      <span className="max-w-[220px] truncate text-sm font-medium text-gray-700">{name}</span>
     </motion.span>
   );
 

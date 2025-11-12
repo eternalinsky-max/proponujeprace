@@ -1,9 +1,11 @@
 // src/app/layout.jsx
 import "./globals.css";
-import { Inter } from "next/font/google";
-import NavBar from "@/components/NavBar";
-// ❗ динамічний імпорт футера
+
 import dynamic from "next/dynamic";
+import { Inter } from "next/font/google";
+
+import NavBar from "@/components/NavBar";
+
 const SiteFooter = dynamic(() => import("@/components/SiteFooter"), { ssr: false });
 
 export const viewport = { themeColor: "#377ff9" };
@@ -25,10 +27,8 @@ export default function RootLayout({ children }) {
       <body className={`${inter.variable} min-h-dvh bg-gray-50 font-sans text-gray-900`}>
         <div className="flex min-h-dvh flex-col">
           <NavBar />
-          <main className="flex-1 mx-auto w-full max-w-6xl py-8">
-            {children}
-          </main>
-          <SiteFooter /> {/* тепер тільки на клієнті */}
+          <main className="mx-auto w-full max-w-6xl flex-1 py-8">{children}</main>
+          <SiteFooter />
         </div>
       </body>
     </html>

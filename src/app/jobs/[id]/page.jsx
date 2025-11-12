@@ -1,13 +1,14 @@
 // src/app/jobs/[id]/page.jsx
-import { prisma } from "@/lib/prisma";
-import Link from "next/link";
-import Image from "next/image";
-import JobRatingBadge from "@/components/JobRatingBadge";
-import ReviewSection from "@/components/ReviewSection";
-import JobActions from "@/components/JobActions"; // ← повернули дії
+import Image from 'next/image';
+import Link from 'next/link';
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+import JobActions from '@/components/JobActions'; // ← повернули дії
+import JobRatingBadge from '@/components/JobRatingBadge';
+import ReviewSection from '@/components/ReviewSection';
+import { prisma } from '@/lib/prisma';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 // Завантаження вакансії (віддаємо все, що треба і для JobActions)
 async function getJob(id) {
@@ -22,12 +23,13 @@ async function getJob(id) {
       salaryMin: true,
       salaryMax: true,
       createdAt: true,
-      status: true,        // ← потрібен для відображення
-      ownerId: true,       // ← потрібен JobActions
+      status: true, // ← потрібен для відображення
+      ownerId: true, // ← потрібен JobActions
       ratingAvg: true,
       ratingCount: true,
       Company: { select: { id: true, name: true, logoUrl: true } },
-      User: {              // власник (для перевірки прав у JobActions)
+      User: {
+        // власник (для перевірки прав у JobActions)
         select: {
           id: true,
           displayName: true,
@@ -42,16 +44,21 @@ async function getJob(id) {
 // SEO
 export async function generateMetadata({ params }) {
   const job = await getJob(params.id);
-  if (!job) return { title: "Oferta nie została znaleziona" };
-  const place = job.isRemote ? "Zdalnie" : job.city ?? "—";
+  if (!job) return { title: 'Oferta nie została znaleziona' };
+  const place = job.isRemote ? 'Zdalnie' : (job.city ?? '—');
   return { title: `${job.title} – ${place} | proponujeprace.pl` };
 }
 
 function Salary({ min, max }) {
-  const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString("pl-PL") : null);
+  const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('pl-PL') : null);
   const a = fmt(min);
   const b = fmt(max);
-  if (a && b) return <span>{a}–{b} zł</span>;
+  if (a && b)
+    return (
+      <span>
+        {a}–{b} zł
+      </span>
+    );
   if (a) return <span>od {a} zł</span>;
   if (b) return <span>do {b} zł</span>;
   return <span className="text-gray-500">Wynagrodzenie nie podano</span>;
@@ -63,7 +70,7 @@ export default async function JobDetailsPage({ params }) {
     return <section className="p-6 text-red-600">Oferta nie została znaleziona.</section>;
   }
 
-  const companyName = job.Company?.name ?? "—";
+  const companyName = job.Company?.name ?? '—';
   const logoUrl = job.Company?.logoUrl ?? null;
 
   return (
@@ -82,7 +89,7 @@ export default async function JobDetailsPage({ params }) {
                 className="rounded-xl border bg-white object-cover"
               />
             ) : (
-              <div className="grid h-16 w-16 place-items-center rounded-xl border bg-gray-50 text-xs text-gray-500">
+              <div className="grid size-16 place-items-center rounded-xl border bg-gray-50 text-xs text-gray-500">
                 {companyName.slice(0, 2).toUpperCase()}
               </div>
             )}
@@ -95,13 +102,16 @@ export default async function JobDetailsPage({ params }) {
             </div>
             <div className="mt-1 text-sm text-gray-700">
               {job.Company ? (
-                <Link href={`/companies/${job.Company.id}`} className="text-brand-600 hover:underline">
+                <Link
+                  href={`/companies/${job.Company.id}`}
+                  className="text-brand-600 hover:underline"
+                >
                   {companyName}
                 </Link>
               ) : (
                 companyName
               )}
-              <span className="ml-2">· {job.isRemote ? "Zdalnie" : job.city || "—"}</span>
+              <span className="ml-2">· {job.isRemote ? 'Zdalnie' : job.city || '—'}</span>
             </div>
           </div>
 
@@ -126,7 +136,7 @@ export default async function JobDetailsPage({ params }) {
           <div className="rounded-lg border bg-gray-50 p-3 text-sm">
             <div className="text-gray-500">Dodano</div>
             <div className="font-medium">
-              {job.createdAt ? new Date(job.createdAt).toLocaleDateString("pl-PL") : "—"}
+              {job.createdAt ? new Date(job.createdAt).toLocaleDateString('pl-PL') : '—'}
             </div>
           </div>
         </div>
