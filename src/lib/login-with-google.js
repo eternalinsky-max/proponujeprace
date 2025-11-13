@@ -4,7 +4,7 @@
 
 import { signInWithPopup, signInWithRedirect } from 'firebase/auth';
 
-import { auth, googleProvider } from '@/lib/firebase-client';
+import { auth, googleProvider } from '@/lib/firebase';
 
 /**
  * Логін через Google:

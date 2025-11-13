@@ -58,8 +58,16 @@ export default function Header() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Лого */}
-          <Link href="/" className="text-xl font-bold text-brand-600">
-            proponujeprace.pl
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-xl font-bold text-brand-600"
+          >
+            <img
+              src="/favicon.svg"
+              alt="proponujeprace.pl"
+              className="h-8 w-8"
+            />
+            <span>proponujeprace.pl</span>
           </Link>
 
           {/* Десктоп навігація */}
@@ -97,7 +105,12 @@ export default function Header() {
                   <span className="hidden max-w-40 truncate text-sm sm:block">
                     {user.displayName || user.email}
                   </span>
-                  <svg className="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <svg
+                    className="size-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
                     <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" />
                   </svg>
                 </button>
@@ -107,13 +120,23 @@ export default function Header() {
                   id="user-menu"
                   role="menu"
                   className={`absolute right-0 mt-2 w-56 rounded-2xl border bg-white p-2 shadow-soft transition ${
-                    menuOpen ? 'scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0'
+                    menuOpen
+                      ? 'scale-100 opacity-100'
+                      : 'pointer-events-none scale-95 opacity-0'
                   }`}
                 >
-                  <Link href="/profile" className="block rounded-lg px-3 py-2 hover:bg-gray-50" role="menuitem">
+                  <Link
+                    href="/profile"
+                    className="block rounded-lg px-3 py-2 hover:bg-gray-50"
+                    role="menuitem"
+                  >
                     Mój profil
                   </Link>
-                  <Link href="/my-jobs" className="block rounded-lg px-3 py-2 hover:bg-gray-50" role="menuitem">
+                  <Link
+                    href="/my-jobs"
+                    className="block rounded-lg px-3 py-2 hover:bg-gray-50"
+                    role="menuitem"
+                  >
                     Moje oferty
                   </Link>
                   <div className="my-1 border-t" />
@@ -145,7 +168,11 @@ export default function Header() {
               aria-hidden="true"
             >
               {open ? (
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
                 <path
                   strokeLinecap="round"
@@ -161,7 +188,9 @@ export default function Header() {
       {/* Оверлей */}
       <div
         className={`fixed inset-0 bg-black/30 transition-opacity md:hidden ${
-          open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+          open
+            ? 'pointer-events-auto opacity-100'
+            : 'pointer-events-none opacity-0'
         }`}
         role="button"
         tabIndex={0}
@@ -178,7 +207,9 @@ export default function Header() {
         id="mobile-menu"
         aria-label="Menu mobilne"
         className={`fixed inset-x-0 top-16 mx-4 rounded-2xl border bg-white shadow-soft transition-transform duration-200 md:hidden ${
-          open ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-3 opacity-0'
+          open
+            ? 'translate-y-0 opacity-100'
+            : 'pointer-events-none -translate-y-3 opacity-0'
         }`}
       >
         <div className="flex flex-col gap-1 p-3">

@@ -5,5 +5,5 @@
       "@/*": ["*"]
     }
   },
-  "exclude": ["node_modules", ".next", "public", "prisma/migrations"]
+  "exclude": ["node_modules", ".next", "dist"]
 }

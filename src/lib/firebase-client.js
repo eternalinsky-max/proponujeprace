@@ -1,9 +1,7 @@
-// src/lib/firebase-client.js
-import { getAnalytics, isSupported as analyticsIsSupported } from 'firebase/analytics';
-import { getApp, getApps, initializeApp } from 'firebase/app';
+'use client';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
-// Конфіг з .env (NEXT_PUBLIC_*)
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -14,19 +12,8 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Singleton ініціалізація
-export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
-// Auth + Google provider
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
-
-// Analytics — тільки в браузері й коли підтримується
-export let analytics;
-if (typeof window !== 'undefined') {
-  analyticsIsSupported()
-    .then((ok) => {
-      if (ok) analytics = getAnalytics(app);
-    })
-    .catch(() => {});
-}
+export { app, auth, googleProvider };
