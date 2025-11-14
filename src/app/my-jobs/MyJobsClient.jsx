@@ -1,251 +1,130 @@
+// src/app/my-jobs/MyJobsClient.jsx
 "use client";
 
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-
+import React, { useEffect, useState } from "react";
 import JobCardList from "@/components/JobCardList";
 import Pagination from "@/components/Pagination";
-import { auth } from "@/lib/firebase";
-import { useAuthUser } from "@/lib/useAuthUser";
-
-const PER_PAGE_OPTIONS = [10, 20, 50];
-const STATUS_OPTIONS = [
-  { value: "", label: "Wszystkie" },
-  { value: "ACTIVE", label: "Aktywne" },
-  { value: "HIDDEN", label: "Ukryte" },
-  { value: "DRAFT", label: "Szkic" },
-];
 
 export default function MyJobsClient() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { user, loading } = useAuthUser();
-
-  const page = Math.max(Number(searchParams.get("page") || "1"), 1);
-
-  const perPage = useMemo(() => {
-    const v = Number(searchParams.get("perPage") || PER_PAGE_OPTIONS[0]);
-    return PER_PAGE_OPTIONS.includes(v) ? v : PER_PAGE_OPTIONS[0];
-  }, [searchParams]);
-
-  const status = (searchParams.get("status") || "").trim();
-  const city = (searchParams.get("city") || "").trim();
-  const remote = searchParams.get("remote"); // "1" | "0" | null
-
   const [state, setState] = useState({
     items: [],
-    total: null,
-    totalPages: 1,
-    hasNext: false,
+    total: 0,
+    page: 1,
+    perPage: 10,
+    loading: true,
+    error: null,
   });
-  const [fetching, setFetching] = useState(false);
-  const [error, setError] = useState("");
 
-  const setQuery = (obj) => {
-    const sp = new URLSearchParams(searchParams?.toString() || "");
-    Object.entries(obj).forEach(([k, v]) => {
-      if (v === null || v === undefined || v === "") sp.delete(k);
-      else sp.set(k, String(v));
-    });
-    router.push(`/my-jobs?${sp.toString()}`);
-  };
-
-  const setPage = (next) => setQuery({ page: next, perPage, status, city, remote });
-  const setPerPage = (next) => setQuery({ page: 1, perPage: next, status, city, remote });
-  const setStatus = (next) => setQuery({ page: 1, perPage, status: next, city, remote });
-  const setCity = (next) => setQuery({ page: 1, perPage, status, city: next, remote });
-  const setRemote = (next) => setQuery({ page: 1, perPage, status, city, remote: next });
-
+  // завантаження списку "моїх оферт"
   useEffect(() => {
-    let aborted = false;
+    const controller = new AbortController();
 
-    async function run() {
-      if (loading) return;
-
-      if (!user) {
-        router.replace(`/login?next=/my-jobs`);
-        return;
-      }
-
+    async function fetchMyJobs() {
       try {
-        setFetching(true);
-        setError("");
+        setState((prev) => ({ ...prev, loading: true, error: null }));
 
-        const token = await auth.currentUser?.getIdToken(true);
-        if (!token) {
-          router.replace(`/login?next=/my-jobs`);
-          return;
-        }
+        const params = new URLSearchParams();
+        params.set("page", String(state.page));
+        params.set("perPage", String(state.perPage));
 
-        const sp = new URLSearchParams();
-        sp.set("page", String(page));
-        sp.set("perPage", String(perPage));
-        if (status) sp.set("status", status);
-        if (city) sp.set("city", city);
-        if (remote === "1" || remote === "0") sp.set("remote", remote);
-
-        const res = await fetch(`/api/my-jobs?${sp.toString()}`, {
-          headers: { Authorization: `Bearer ${token}` },
-          cache: "no-store",
+        const res = await fetch(`/api/my-jobs?${params.toString()}`, {
+          method: "GET",
+          signal: controller.signal,
         });
 
         if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || `HTTP ${res.status}`);
+          throw new Error(`HTTP ${res.status}`);
         }
 
         const data = await res.json();
-        const normalized = {
+        // очікуємо, що API повертає щось типу:
+        // { items: Job[], total: number, page: number, perPage: number }
+        setState((prev) => ({
+          ...prev,
           items: data.items ?? [],
-          total: data.total ?? null,
-          totalPages: data.totalPages ?? (data.hasNext ? page + 1 : page),
-          hasNext: !!data.hasNext,
-        };
-
-        if (!aborted) setState(normalized);
-      } catch (e) {
-        if (!aborted) setError(e.message || "Błąd pobierania");
-      } finally {
-        if (!aborted) setFetching(false);
+          total: data.total ?? 0,
+          page: data.page ?? prev.page,
+          perPage: data.perPage ?? prev.perPage,
+          loading: false,
+          error: null,
+        }));
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        console.error("Failed to fetch my jobs:", err);
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: "Nie udało się załadować ofert.",
+        }));
       }
     }
 
-    run();
-    return () => {
-      aborted = true;
-    };
+    fetchMyJobs();
+
+    return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, loading, page, perPage, status, city, remote, router, searchParams]);
+  }, [state.page, state.perPage]);
 
-  if (loading || fetching) {
-    return (
-      <section className="px-4 py-6 sm:px-6">
-        <h1 className="mb-4 text-xl font-bold">Moje oferty</h1>
-        <div className="rounded-lg border bg-white p-6 text-gray-600" role="status" aria-live="polite">
-          Ładowanie…
-        </div>
-      </section>
-    );
-  }
+  // 🔥 ось тут видаляємо оферту зі списку після успішного DELETE
+  const handleJobDeleted = (deletedId) => {
+    setState((prev) => {
+      const filtered = prev.items.filter((job) => job.id !== deletedId);
+      return {
+        ...prev,
+        items: filtered,
+        total: Math.max(0, prev.total - 1),
+      };
+    });
+  };
 
-  if (error) {
-    return (
-      <section className="px-4 py-6 sm:px-6">
-        <h1 className="mb-4 text-xl font-bold">Moje oferty</h1>
-        <div className="rounded-lg border bg-white p-6 text-red-600" role="status" aria-live="polite">
-          Błąd: {error}
-        </div>
-      </section>
-    );
-  }
+  const handlePageChange = (nextPage) => {
+    setState((prev) => ({
+      ...prev,
+      page: nextPage,
+    }));
+  };
 
-  const hasItems = (state.items?.length ?? 0) > 0;
+  const handlePerPageChange = (nextPerPage) => {
+    setState((prev) => ({
+      ...prev,
+      perPage: nextPerPage,
+      page: 1,
+    }));
+  };
 
   return (
     <section className="px-4 py-6 sm:px-6">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-bold">Moje oferty</h1>
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-sm">
-            <span>Na stronę:</span>
-            <select
-              value={perPage}
-              onChange={(e) => setPerPage(Number(e.target.value))}
-              className="rounded-lg border px-2 py-1 text-sm"
-            >
-              {PER_PAGE_OPTIONS.map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          </label>
-          <Link href="/post-job" className="btn btn-primary">
-            Dodaj ofertę
-          </Link>
-        </div>
-      </div>
+      <header className="mb-4 flex items-center justify-between gap-3">
+        <h1 className="text-lg font-semibold">Moje oferty</h1>
 
-      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-4">
-        <label className="flex items-center gap-2 text-sm">
-          <span className="w-20 shrink-0 text-gray-600">Status</span>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="w-full rounded-lg border px-2 py-1.5 text-sm"
-          >
-            {STATUS_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        {/* якщо треба, сюди можна додати фільтри / пошук */}
+      </header>
 
-        <label className="flex items-center gap-2 text-sm">
-          <span className="w-20 shrink-0 text-gray-600">Miasto</span>
-          <input
-            type="text"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="np. Warszawa"
-            className="w-full rounded-lg border px-2 py-1.5 text-sm"
+      {state.loading && (
+        <p className="mb-3 text-sm text-gray-500">Ładowanie ofert…</p>
+      )}
+
+      {state.error && (
+        <p className="mb-3 text-sm text-red-600">{state.error}</p>
+      )}
+
+      {/* 🔥 головне місце — тут передаємо showDelete */}
+      <JobCardList
+        jobs={state.items}
+        showDelete
+        onJobDeleted={handleJobDeleted}
+      />
+
+      {state.total > 0 && (
+        <div className="mt-4">
+          <Pagination
+            currentPage={state.page}
+            perPage={state.perPage}
+            totalItems={state.total}
+            onPageChange={handlePageChange}
+            onPerPageChange={handlePerPageChange}
           />
-        </label>
-
-        <div className="flex items-center gap-3 text-sm">
-          <span className="w-20 shrink-0 text-gray-600">Tryb</span>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setRemote(null)}
-              className={`rounded-lg border px-2 py-1.5 ${
-                remote == null ? "bg-brand-50 border-brand-600" : ""
-              }`}
-            >
-              Wszystkie
-            </button>
-            <button
-              type="button"
-              onClick={() => setRemote("1")}
-              className={`rounded-lg border px-2 py-1.5 ${
-                remote === "1" ? "bg-brand-50 border-brand-600" : ""
-              }`}
-            >
-              Zdalnie
-            </button>
-            <button
-              type="button"
-              onClick={() => setRemote("0")}
-              className={`rounded-lg border px-2 py-1.5 ${
-                remote === "0" ? "bg-brand-50 border-brand-600" : ""
-              }`}
-            >
-              Stacjonarnie
-            </button>
-          </div>
         </div>
-      </div>
-
-      {hasItems ? (
-        <>
-          <JobCardList jobs={state.items} />
-          <div className="mt-6">
-            <Pagination page={page} totalPages={state.totalPages} onPageChange={setPage} />
-          </div>
-          <div className="mt-3 text-center text-sm text-gray-600">
-            {state.total != null ? (
-              <>
-                Razem: <span className="font-semibold">{state.total}</span>
-              </>
-            ) : (
-              <>Łączna liczba może być pominięta.</>
-            )}
-          </div>
-        </>
-      ) : (
-        <div className="rounded-lg border bg-white p-6 text-gray-600">Nie masz jeszcze żadnych ofert.</div>
       )}
     </section>
   );

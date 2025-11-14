@@ -1,50 +1,46 @@
-'use client';
+// src/components/JobCard.jsx
+import Link from "next/link";
+import DeleteJobButton from "@/components/DeleteJobButton";
+import JobRatingBadge from "@/components/JobRatingBadge";
 
-import Link from 'next/link';
-
-import JobRatingBadge from '@/components/JobRatingBadge';
-
-/**
- * Картка вакансії у списку
- */
-export default function JobCard({ job }) {
+export default function JobCard({ job, onDeleted, showDelete = false }) {
   return (
-    <Link
-      href={`/jobs/${job.id}`}
-      className="group block rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md"
-    >
-      <div className="flex flex-col gap-2">
-        {/* Заголовок */}
-        <h2 className="text-lg font-semibold text-gray-900 group-hover:text-brand-600">
-          {job.title}
-        </h2>
+    <article className="rounded-xl border bg-white p-4 shadow-sm">
+      <header className="mb-2 flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold">
+            <Link href={`/jobs/${job.id}`} className="hover:underline">
+              {job.title}
+            </Link>
+          </h2>
 
-        {/* Назва компанії */}
-        {job.company?.name && <p className="text-sm text-gray-600">{job.company.name}</p>}
+          {job.city && (
+            <p className="text-sm text-gray-600">
+              {job.city} {job.isRemote ? "· praca zdalna" : null}
+            </p>
+          )}
+        </div>
 
-        {/* Місто / Режим */}
-        <p className="text-sm text-gray-500">{job.isRemote ? 'Zdalnie' : job.city || '—'}</p>
+        <JobRatingBadge job={job} />
+      </header>
 
-        {/* 💫 Рейтинг вакансії */}
-        {job.ratingCount > 0 && (
-          <div className="mt-1">
-            <JobRatingBadge avg={job.ratingAvg} count={job.ratingCount} className="text-xs" />
-          </div>
+      <p className="line-clamp-2 text-sm text-gray-700">
+        {job.description}
+      </p>
+
+      <footer className="mt-3 flex items-center justify-between gap-3">
+        <Link
+          href={`/jobs/${job.id}`}
+          className="text-sm font-medium text-brand-600 hover:underline"
+        >
+          Szczegóły
+        </Link>
+
+        {/* показуємо кнопку лише якщо showDelete === true */}
+        {showDelete && (
+          <DeleteJobButton id={job.id} onDeleted={onDeleted} />
         )}
-
-        {/* Короткий опис */}
-        {job.description && (
-          <p className="mt-2 line-clamp-3 text-sm text-gray-700">{job.description}</p>
-        )}
-
-        {/* Зарплата (якщо є) */}
-        {(job.salaryMin || job.salaryMax) && (
-          <p className="mt-2 text-sm font-medium text-gray-900">
-            {job.salaryMin ? `${job.salaryMin.toLocaleString('pl-PL')} zł` : ''}
-            {job.salaryMax ? ` – ${job.salaryMax.toLocaleString('pl-PL')} zł` : ''}
-          </p>
-        )}
-      </div>
-    </Link>
+      </footer>
+    </article>
   );
 }

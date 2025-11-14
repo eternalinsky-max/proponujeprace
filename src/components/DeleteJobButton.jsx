@@ -1,68 +1,69 @@
-'use client';
-import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+// src/components/DeleteJobButton.jsx
+"use client";
 
-import { auth } from '@/lib/firebase';
+import { useRouter, usePathname } from "next/navigation";
+import { useState } from "react";
+import { auth } from "@/lib/firebase";
 
-export default function DeleteJobButton({ jobId, className = 'btn btn-ghost' }) {
-  const [loading, setLoading] = useState(false);
-  const [isPending, startTransition] = useTransition();
+export default function DeleteJobButton({ id, onDeleted, className = "" }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const [loading, setLoading] = useState(false);
 
   async function handleDelete() {
-    // просте підтвердження без window.confirm
-    // можна замінити на власний діалог у майбутньому
-    if (!window.confirm('Na pewno chcesz usunąć tę ofertę?')) return;
-
-    const user = auth.currentUser;
-    if (!user) {
-      router.push('/login?next=/jobs');
-      return;
-    }
+    if (!id) return;
+    if (!window.confirm("Na pewno usunąć tę ofertę?")) return;
 
     try {
       setLoading(true);
-      const token = await user.getIdToken(); // без форс-рефрешу зазвичай достатньо
-      const res = await fetch(`/api/jobs/${jobId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
+
+      const user = auth.currentUser;
+      const token = await user?.getIdToken(true);
+      if (!token) {
+        router.push("/login?next=" + encodeURIComponent(pathname || "/my-jobs"));
+        return;
+      }
+
+      const res = await fetch(`/api/jobs/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      if (res.ok) {
-        // оновити список інколи приємніше, ніж редіректити
-        startTransition(() => router.refresh());
-        // якщо хочеш – заміни на router.push('/jobs')
-      } else if (res.status === 401) {
-        router.push('/login?next=/jobs');
-      } else if (res.status === 403) {
-        // немає прав на видалення
-        console.warn('Brak uprawnień do usunięcia tej oferty.');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
+
+      // 🔥 повідомляємо батьківський компонент
+      if (typeof onDeleted === "function") {
+        onDeleted(id);
+      }
+
+      // Якщо видаляємо НЕ з /my-jobs (наприклад, з /jobs/[id]) —
+      // робимо редірект на список. Якщо ми в /my-jobs, просто рефреш.
+      if (!pathname.startsWith("/my-jobs") && !onDeleted) {
+        router.push("/jobs");
       } else {
-        const ct = res.headers.get('content-type') || '';
-        const msg = ct.includes('application/json')
-          ? ((await res.json())?.error ?? `HTTP ${res.status}`)
-          : (await res.text()) || `HTTP ${res.status}`;
-        console.error('Delete error:', msg);
+        router.refresh();
       }
     } catch (e) {
-      console.error('Network error:', e);
+      console.error("Delete job error:", e);
+      alert("Nie udało się usunąć oferty.");
     } finally {
       setLoading(false);
     }
   }
 
-  const disabled = loading || isPending;
-
   return (
     <button
-      onClick={handleDelete}
-      disabled={disabled}
-      aria-disabled={disabled}
-      aria-busy={disabled}
-      className={className}
       type="button"
+      onClick={handleDelete}
+      disabled={loading}
+      className={`rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 ${className}`}
     >
-      {disabled ? 'Usuwanie…' : 'Usuń ofertę'}
+      {loading ? "Usuwanie…" : "Usuń ofertę"}
     </button>
   );
 }
