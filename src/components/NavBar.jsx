@@ -1,4 +1,3 @@
-// src/components/NavBar.jsx
 'use client';
 /* eslint-env browser */
 
@@ -37,6 +36,7 @@ export default function NavBar() {
   return (
     <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 p-4">
+        
         {/* logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image
@@ -46,6 +46,7 @@ export default function NavBar() {
             height={36}
             priority
             className="rounded-xl"
+            unoptimized
           />
           <span className="font-bold">proponujeprace.pl</span>
         </Link>

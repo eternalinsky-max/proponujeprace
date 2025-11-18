@@ -1,35 +1,20 @@
 // src/app/layout.jsx
-import "./globals.css";
-
-import dynamic from "next/dynamic";
-import { Inter } from "next/font/google";
-
-import NavBar from "@/components/NavBar";
-
-const SiteFooter = dynamic(() => import("@/components/SiteFooter"), { ssr: false });
-
-export const viewport = { themeColor: "#377ff9" };
+import './globals.css';
+import NavBar from '@/components/NavBar';
 
 export const metadata = {
-  title: "proponujeprace.pl",
-  description: "Portal ogłoszeń pracy dla Polski",
+  title: 'proponujeprace.pl',
+  description: 'Portal ogłoszeń o pracy w Polsce',
 };
-
-const inter = Inter({
-  subsets: ["latin", "latin-ext"],
-  display: "swap",
-  variable: "--font-sans",
-});
 
 export default function RootLayout({ children }) {
   return (
     <html lang="pl">
-      <body className={`${inter.variable} min-h-dvh bg-gray-50 font-sans text-gray-900`}>
-        <div className="flex min-h-dvh flex-col">
-          <NavBar />
-          <main className="mx-auto w-full max-w-6xl flex-1 py-8">{children}</main>
-          <SiteFooter />
-        </div>
+      <body className="bg-gray-50">
+        <NavBar />
+        <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6">
+          {children}
+        </main>
       </body>
     </html>
   );
