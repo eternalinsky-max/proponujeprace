@@ -1,25 +1,37 @@
 // src/app/api/my-jobs/route.js
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { verifyFirebaseToken } from '@/lib/auth';
+import { adminAuth } from '@/lib/firebase-admin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {
-    // ----- 1) Авторизація через Firebase ID token -----
-    const authHeader = req.headers.get('authorization') || '';
-    const token = authHeader.startsWith('Bearer ')
-      ? authHeader.slice(7)
-      : null;
+    // 1) Пробуємо забрати токен з нашого спеціального заголовка
+    let token = req.headers.get('x-id-token') || '';
 
-    const decoded = await verifyFirebaseToken(token);
-
-    if (!decoded) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // 2) Фолбек: якщо раптом будемо колись слати Bearer
+    if (!token) {
+      const authHeader = req.headers.get('authorization') || '';
+      if (authHeader.startsWith('Bearer ')) {
+        token = authHeader.slice(7);
+      }
     }
 
+    if (!token) {
+      return NextResponse.json({ error: 'NO_TOKEN' }, { status: 401 });
+    }
+
+    let decoded;
+    try {
+      decoded = await adminAuth.verifyIdToken(token);
+    } catch (err) {
+      console.error('verifyIdToken error in /api/my-jobs:', err);
+      return NextResponse.json({ error: 'INVALID_TOKEN' }, { status: 401 });
+    }
+
+    // поточний користувач
     const me = await prisma.user.findUnique({
       where: { firebaseUid: decoded.uid },
       select: { id: true },
@@ -29,7 +41,7 @@ export async function GET(req) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // ----- 2) Параметри запиту -----
+    // параметри з URL
     const url = new URL(req.url);
     const page = Math.max(1, Number(url.searchParams.get('page') || '1'));
     const perPageRaw = Number(url.searchParams.get('perPage') || '10');
@@ -39,9 +51,8 @@ export async function GET(req) {
     const city = (url.searchParams.get('city') || '').trim();
     const remote = url.searchParams.get('remote'); // "1" | "0" | null
 
-    // ----- 3) Фільтри -----
     const where = {
-      ownerId: me.id, // тільки МОЇ оферти
+      ownerId: me.id,
     };
 
     if (status) where.status = status;
@@ -54,13 +65,12 @@ export async function GET(req) {
     if (remote === '1') where.isRemote = true;
     if (remote === '0') where.isRemote = false;
 
-    // ----- 4) Запит до БД -----
     const [items, total] = await Promise.all([
       prisma.job.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * perPage,
-        take: perPage + 1, // +1 щоб дізнатись, чи є наступна сторінка
+        take: perPage + 1,
         include: {
           Company: {
             select: { id: true, name: true, logoUrl: true },

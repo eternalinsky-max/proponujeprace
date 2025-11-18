@@ -1,9 +1,9 @@
-// src/app/my-jobs/MyJobsClient.jsx
 "use client";
 
 import React, { useEffect, useState } from "react";
 import JobCardList from "@/components/JobCardList";
 import Pagination from "@/components/Pagination";
+import { auth } from "@/lib/firebase";
 
 export default function MyJobsClient() {
   const [state, setState] = useState({
@@ -23,13 +23,17 @@ export default function MyJobsClient() {
       try {
         setState((prev) => ({ ...prev, loading: true, error: null }));
 
-        const params = new URLSearchParams();
-        params.set("page", String(state.page));
-        params.set("perPage", String(state.perPage));
+        const token = await auth.currentUser?.getIdToken();
 
-        const res = await fetch(`/api/my-jobs?${params.toString()}`, {
+        const sp = new URLSearchParams();
+        sp.set("page", String(state.page));
+        sp.set("perPage", String(state.perPage));
+
+        const res = await fetch(`/api/my-jobs?${sp.toString()}`, {
           method: "GET",
           signal: controller.signal,
+          headers: { "x-id-token": token },
+          cache: "no-store",
         });
 
         if (!res.ok) {
@@ -37,8 +41,7 @@ export default function MyJobsClient() {
         }
 
         const data = await res.json();
-        // очікуємо, що API повертає щось типу:
-        // { items: Job[], total: number, page: number, perPage: number }
+
         setState((prev) => ({
           ...prev,
           items: data.items ?? [],
@@ -96,8 +99,6 @@ export default function MyJobsClient() {
     <section className="px-4 py-6 sm:px-6">
       <header className="mb-4 flex items-center justify-between gap-3">
         <h1 className="text-lg font-semibold">Moje oferty</h1>
-
-        {/* якщо треба, сюди можна додати фільтри / пошук */}
       </header>
 
       {state.loading && (
@@ -108,7 +109,6 @@ export default function MyJobsClient() {
         <p className="mb-3 text-sm text-red-600">{state.error}</p>
       )}
 
-      {/* 🔥 головне місце — тут передаємо showDelete */}
       <JobCardList
         jobs={state.items}
         showDelete
