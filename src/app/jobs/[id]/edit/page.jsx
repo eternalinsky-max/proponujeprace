@@ -2,7 +2,7 @@
 "use client";
 
 import JobEditForm from "@/components/JobEditForm";
-import withAuth from "@/lib/withAuth";
+import { withAuth } from "@/lib/withAuth";
 
 function EditJobPage({ params }) {
   const { id } = params;
