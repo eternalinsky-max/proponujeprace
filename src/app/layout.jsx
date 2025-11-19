@@ -1,6 +1,6 @@
 import './globals.css';
 import NavBar from '@/components/NavBar';
-import SiteFooter from '@/components/Footer'; // ⬅️ додати!
+import SiteFooter from '@/components/Footer';
 
 export const metadata = {
   title: 'proponujeprace.pl',
@@ -17,7 +17,8 @@ export default function RootLayout({ children }) {
           {children}
         </main>
 
-        <SiteFooter /> {/* ⬅️ додати футер */}
+        {/* футер тут */}
+        <SiteFooter />
       </body>
     </html>
   );
