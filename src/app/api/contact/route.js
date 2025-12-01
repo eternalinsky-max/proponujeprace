@@ -238,14 +238,22 @@ ${message}`;
       </div>
     `;
 
-    const result = await sendMail({
-      to,
-      replyTo: email,
-      subject,
-      text,
-      html,
-      fromName: "Formularz kontaktowy",
-    });
+    let result = null;
+    let mailError = null;
+
+    try {
+      result = await sendMail({
+        to,
+        replyTo: email,
+        subject,
+        text,
+        html,
+        fromName: "Formularz kontaktowy",
+      });
+    } catch (err) {
+      console.error("sendMail error:", err);
+      mailError = err;
+    }
 
     await logContact({
       ip,
@@ -253,12 +261,20 @@ ${message}`;
       name,
       email,
       message,
-      success: true,
+      success: !mailError,
       provider: result?.provider || null,
       providerMessageId: result?.id || null,
+      error: mailError ? String(mailError?.message || mailError) : null,
     });
 
-    const res = NextResponse.json({ ok: true }, { status: 200 });
+    // Якщо пошта не відправилась — все одно не валимо форму 500-кою
+    const res = NextResponse.json(
+      mailError
+        ? { ok: false, message: "Wiadomość zapisana, ale nie udało się wysłać e-maila." }
+        : { ok: true },
+      { status: 200 },
+    );
+
     if (rate.limit != null) {
       res.headers.set("X-RateLimit-Limit", String(rate.limit));
       res.headers.set("X-RateLimit-Remaining", String(rate.remaining));
