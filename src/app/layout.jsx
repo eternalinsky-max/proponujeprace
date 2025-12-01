@@ -11,10 +11,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pl">
       <head>
-        {/* Версіонований favicon — гарантія, що браузер не візьме кеш */}
+        {/* Явно вказуємо favicon — браузер бере саме його */}
         <link rel="icon" href="/favicon.svg?v=4" type="image/svg+xml" />
-        <link rel="icon" href="/favicon-32.png?v=4" sizes="32x32" />
-        <link rel="icon" href="/favicon-16.png?v=4" sizes="16x16" />
+        {/* Якщо PNG видалені — ці рядки можна прибрати або залишити закоментованими */}
+        {/* <link rel="icon" href="/favicon-32.png?v=4" sizes="32x32" />
+        <link rel="icon" href="/favicon-16.png?v=4" sizes="16x16" /> */}
         <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" />
         <link rel="manifest" href="/site.webmanifest?v=4" />
       </head>

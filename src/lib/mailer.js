@@ -1,92 +1,75 @@
 // src/lib/mailer.js
-import Brevo from '@getbrevo/brevo';
-import nodemailer from 'nodemailer';
+import 'server-only';
+import { sendMail as smtpSend, verifySmtp } from '@/lib/email.js';
 
-const PROVIDER = (process.env.MAIL_PROVIDER || 'SMTP').toUpperCase();
+const RESEND_KEY = process.env.RESEND_API_KEY || null;
 
-let smtpTransport = null;
-let brevoApi = null;
-
-function getFrom() {
-  const email = process.env.MAIL_FROM_EMAIL || process.env.SMTP_USER || process.env.SUPPORT_EMAIL;
-  const name = process.env.MAIL_FROM_NAME || 'proponujeprace.pl';
-  return { email, name };
+function safeStr(v) {
+  if (v == null) return '';
+  return String(v);
 }
 
-// --- SMTP (Nodemailer) ---
-function getSmtpTransport() {
-  if (smtpTransport) return smtpTransport;
-  const { SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS } = process.env;
+export async function sendMail({ to, replyTo, subject, text, html, fromName }) {
+  if (!to) throw new Error('No recipient');
 
-  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
-    console.warn('[mailer] SMTP env vars are missing – emails may fail.');
+  // 1) Try Resend
+  if (RESEND_KEY) {
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${RESEND_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: `${fromName || 'no-reply'} <no-reply@proponujeprace.pl>`,
+          to,
+          subject,
+          html,
+          text,
+          reply_to: replyTo,
+        }),
+      });
+
+      if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        throw new Error(`Resend error ${res.status}: ${body}`);
+      }
+
+      const data = await res.json().catch(() => null);
+      return { id: data?.id ?? null, provider: 'resend' };
+    } catch (err) {
+      console.error('sendMail(resend) failed:', err);
+    }
   }
 
-  smtpTransport = nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: Number(SMTP_PORT || 465),
-    secure: String(SMTP_SECURE ?? 'true') === 'true',
-    auth: { user: SMTP_USER, pass: SMTP_PASS },
-  });
-  return smtpTransport;
-}
+  // 2) Try SMTP
+  try {
+    const ok = await verifySmtp();
+    if (ok && ok.ok) {
+      const info = await smtpSend({
+        to,
+        subject: safeStr(subject),
+        text: safeStr(text),
+        html: safeStr(html),
+      });
 
-// --- Brevo API ---
-function getBrevoApi() {
-  if (brevoApi) return brevoApi;
-  const apiKey = process.env.BREVO_API_KEY;
-  if (!apiKey) {
-    console.warn('[mailer] BREVO_API_KEY missing – emails may fail.');
-  }
-  const api = new Brevo.TransactionalEmailsApi();
-  api.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apiKey);
-  brevoApi = api;
-  return brevoApi;
-}
-
-/**
- * sendMail — єдиний інтерфейс для відправки листів
- * @param {Object} p
- * @param {string} p.to
- * @param {string} p.subject
- * @param {string} [p.text]
- * @param {string} [p.html]
- * @param {string} [p.replyTo]
- * @param {string} [p.fromEmail]  // опц.
- * @param {string} [p.fromName]   // опц.
- */
-export async function sendMail(p) {
-  const to = p.to || process.env.SUPPORT_EMAIL;
-  if (!to) throw new Error('No recipient (to)');
-  const from = {
-    email: p.fromEmail || getFrom().email,
-    name: p.fromName || getFrom().name,
-  };
-
-  if (PROVIDER === 'BREVO') {
-    const api = getBrevoApi();
-    const payload = new Brevo.SendSmtpEmail();
-    payload.sender = { email: from.email, name: from.name };
-    payload.to = [{ email: to }];
-    if (p.replyTo) payload.replyTo = { email: p.replyTo };
-    payload.subject = p.subject;
-    if (p.html) payload.htmlContent = p.html;
-    if (p.text) payload.textContent = p.text;
-
-    const res = await api.sendTransacEmail(payload);
-    // res містить messageId тощо — можна логувати
-    return { ok: true, provider: 'BREVO', id: res?.messageId || null };
+      return { id: info?.messageId ?? null, provider: 'smtp' };
+    } else {
+      console.warn('SMTP verify failed:', ok);
+    }
+  } catch (err) {
+    console.error('SMTP error:', err);
   }
 
-  // fallback: SMTP
-  const transport = getSmtpTransport();
-  const info = await transport.sendMail({
-    from: `"${from.name}" <${from.email}>`,
+  // 3) Fallback
+  console.warn('MAIL FALLBACK (no SMTP/Resend configured)');
+  console.log({
     to,
-    replyTo: p.replyTo,
-    subject: p.subject,
-    text: p.text,
-    html: p.html,
+    subject,
+    text,
+    html,
   });
-  return { ok: true, provider: 'SMTP', id: info?.messageId || null };
+
+  return { id: null, provider: 'fallback' };
 }
