@@ -5,7 +5,7 @@
   "scripts": {
     "fix-admin-imports": "node scripts/fix-admin-imports.js",
     "dev": "next dev -p 3000",
-    "build": "prisma migrate deploy && next build",
+    "build": "next build",
     "start": "next start -p 3000",
     "lint": "eslint \"src/**/*.{js,jsx}\" --max-warnings=0",
     "lint:fix": "eslint \"src/**/*.{js,jsx}\" --fix && prettier \"src/**/*.{js,jsx,css,md}\" --write",
@@ -15,8 +15,10 @@
     "prisma:generate": "prisma generate",
     "prisma:deploy": "prisma migrate deploy",
     "postinstall": "prisma generate"
-  }, 
+  },
   "dependencies": {
+    "@eslint/config-array": "^0.21.1",
+    "@eslint/object-schema": "^2.1.7",
     "@getbrevo/brevo": "^3.0.1",
     "@prisma/client": "^5.16.1",
     "@upstash/ratelimit": "^2.0.6",
@@ -36,7 +38,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
-    "eslint": "^8.57.1",
+    "eslint": "^9.39.1",
     "eslint-config-next": "14.2.5",
     "eslint-config-prettier": "^9.1.2",
     "eslint-import-resolver-jsconfig": "^1.1.0",

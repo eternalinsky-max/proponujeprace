@@ -1,113 +1,165 @@
-'use client';
+// src/components/ContactForm.jsx
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-export default function ContactForm({ className = '' }) {
-  const [startedAt, setStartedAt] = useState(Date.now());
-  const [sending, setSending] = useState(false);
-  const [ok, setOk] = useState(false);
-  const [err, setErr] = useState('');
+export default function ContactForm() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [website, setWebsite] = useState(""); // honeypot (приховане поле)
+  const [startedAt, setStartedAt] = useState(null);
 
-  useEffect(() => setStartedAt(Date.now()), []);
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null);
 
-  async function onSubmit(e) {
+  // Записуємо час, коли форма вперше відрендерилась
+  useEffect(() => {
+    setStartedAt(Date.now());
+  }, []);
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    setSending(true);
-    setOk(false);
-    setErr('');
-
-    const fd = new FormData(e.currentTarget);
-    const payload = {
-      name: fd.get('name'),
-      email: fd.get('email'),
-      message: fd.get('message'),
-      website: fd.get('website'), // honeypot (hidden)
-      startedAt, // time trap
-      termsAccepted: fd.get('terms') === 'on', // checkbox
-    };
+    setSubmitting(true);
+    setSuccess(false);
+    setError(null);
 
     try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const payload = {
+        name: name.trim(),
+        email: email.trim(),
+        message: message.trim(),
+        website: website || "",      // honeypot — лишаємо порожнім
+        startedAt: startedAt ?? Date.now(), // число, не строка!
+        termsAccepted: true,         // явно boolean
+      };
+
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(payload),
       });
+
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || data.ok !== true) {
-        throw new Error(data.error || `HTTP ${res.status}`);
+
+      if (!res.ok) {
+        // в разі 400 тут буде { error: "Bad request", issues: ... }
+        console.error("Contact error:", data);
+        if (data.error === "Too fast") {
+          setError("Formularz został wysłany zbyt szybko. Spróbuj ponownie za kilka sekund.");
+        } else if (data.error === "Form expired") {
+          setError("Formularz wygasł. Odśwież stronę i spróbuj ponownie.");
+        } else if (data.error === "Terms must be accepted") {
+          setError("Musisz zaakceptować zgodę na kontakt.");
+        } else {
+          setError(data.error || "Wystąpił błąd podczas wysyłania wiadomości.");
+        }
+        return;
       }
-      setOk(true);
-      e.currentTarget.reset();
-      setStartedAt(Date.now()); // нова сесія форми
-    } catch (e) {
-      setErr(e.message || 'Wystąpił błąd');
+
+      // Успіх
+      setSuccess(true);
+      setName("");
+      setEmail("");
+      setMessage("");
+      setWebsite("");
+      setStartedAt(Date.now());
+    } catch (err) {
+      console.error("Contact submit failed:", err);
+      setError("Wystąpił błąd sieci. Spróbuj ponownie później.");
     } finally {
-      setSending(false);
+      setSubmitting(false);
     }
   }
 
   return (
-    <form onSubmit={onSubmit} className={`grid gap-3 ${className}`}>
-      {ok && (
-        <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
-          Dziękujemy! Wiadomość została wysłana.
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </p>
       )}
-      {err && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          Błąd: {err}
-        </div>
+      {success && (
+        <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
+          Twoja wiadomość została wysłana.
+        </p>
       )}
 
-      <div className="grid gap-1.5">
-        <label className="text-sm">Imię i nazwisko</label>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Imię i nazwisko
+        </label>
         <input
-          name="name"
+          type="text"
+          className="mt-1 block w-full rounded-md border px-3 py-2 text-sm"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           required
           minLength={2}
-          maxLength={100}
-          placeholder="Jan Kowalski"
-          className="rounded-lg border px-3 py-2"
         />
       </div>
 
-      <div className="grid gap-1.5">
-        <label className="text-sm">Email</label>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Adres e-mail
+        </label>
         <input
-          name="email"
           type="email"
+          className="mt-1 block w-full rounded-md border px-3 py-2 text-sm"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
-          placeholder="jan@example.com"
-          className="rounded-lg border px-3 py-2"
         />
       </div>
 
-      <div className="grid gap-1.5">
-        <label className="text-sm">Wiadomość</label>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Treść wiadomości
+        </label>
         <textarea
-          name="message"
+          className="mt-1 block w-full rounded-md border px-3 py-2 text-sm"
+          rows={5}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
           required
           minLength={10}
-          maxLength={5000}
-          rows={6}
-          placeholder="Opisz krótko swój temat…"
-          className="rounded-lg border px-3 py-2"
         />
       </div>
 
-      {/* honeypot — nie wypełniać (ukryte dla ludzi) */}
-      <div aria-hidden="true" className="hidden">
-        <label>Website</label>
-        <input name="website" tabIndex={-1} autoComplete="off" />
+      {/* honeypot — сховай цей input через CSS (display:none) */}
+      <div style={{ display: "none" }}>
+        <label>
+          Strona internetowa
+          <input
+            type="text"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+          />
+        </label>
       </div>
 
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" name="terms" required />
-        Wyrażam zgodę na kontakt w sprawie mojego zapytania.
-      </label>
+      <div className="flex items-center gap-2">
+        <input
+          id="terms"
+          type="checkbox"
+          className="h-4 w-4 rounded border-gray-300 text-brand-600"
+          defaultChecked
+          disabled
+        />
+        <label htmlFor="terms" className="text-sm text-gray-600">
+          Wyrażam zgodę na kontakt w sprawie mojego zapytania.
+        </label>
+      </div>
 
-      <button type="submit" disabled={sending} className="btn btn-primary">
-        {sending ? 'Wysyłanie…' : 'Wyślij wiadomość'}
+      <button
+        type="submit"
+        disabled={submitting}
+        className="inline-flex items-center rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+      >
+        {submitting ? "Wysyłanie..." : "Wyślij wiadomość"}
       </button>
     </form>
   );

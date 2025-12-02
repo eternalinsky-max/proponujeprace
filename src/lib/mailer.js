@@ -22,7 +22,7 @@ export async function sendMail({ to, replyTo, subject, text, html, fromName }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: `${fromName || 'no-reply'} <no-reply@proponujeprace.pl>`,
+          from: `${fromName || 'proponujeprace.pl'} <onboarding@resend.dev>`,
           to,
           subject,
           html,
