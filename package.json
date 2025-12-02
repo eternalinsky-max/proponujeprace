@@ -17,8 +17,6 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@eslint/config-array": "^0.21.1",
-    "@eslint/object-schema": "^2.1.7",
     "@getbrevo/brevo": "^3.0.1",
     "@prisma/client": "^5.16.1",
     "@upstash/ratelimit": "^2.0.6",
@@ -38,7 +36,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
-    "eslint": "^9.39.1",
+    "eslint": "8.57.1",
     "eslint-config-next": "14.2.5",
     "eslint-config-prettier": "^9.1.2",
     "eslint-import-resolver-jsconfig": "^1.1.0",
