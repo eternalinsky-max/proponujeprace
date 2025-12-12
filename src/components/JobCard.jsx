@@ -2,8 +2,11 @@
 import Link from "next/link";
 import DeleteJobButton from "@/components/DeleteJobButton";
 import JobRatingBadge from "@/components/JobRatingBadge";
+import { formatDescription } from "@/lib/formatDescription";
 
 export default function JobCard({ job, onDeleted, showDelete = false }) {
+  const safeDescription = formatDescription(job.description);
+
   return (
     <article className="rounded-xl border bg-white p-4 shadow-sm">
       <header className="mb-2 flex items-start justify-between gap-3">
@@ -24,9 +27,11 @@ export default function JobCard({ job, onDeleted, showDelete = false }) {
         <JobRatingBadge job={job} />
       </header>
 
-      <p className="line-clamp-2 text-sm text-gray-700">
-        {job.description}
-      </p>
+      {/* Опис з автолінками */}
+      <div
+        className="line-clamp-2 text-sm text-gray-700 prose prose-sm max-w-none"
+        dangerouslySetInnerHTML={{ __html: safeDescription }}
+      />
 
       <footer className="mt-3 flex items-center justify-between gap-3">
         <Link
@@ -36,7 +41,6 @@ export default function JobCard({ job, onDeleted, showDelete = false }) {
           Szczegóły
         </Link>
 
-        {/* показуємо кнопку лише якщо showDelete === true */}
         {showDelete && (
           <DeleteJobButton id={job.id} onDeleted={onDeleted} />
         )}
