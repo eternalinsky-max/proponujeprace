@@ -1,16 +1,17 @@
 // src/app/jobs/[id]/page.jsx
-import Image from 'next/image';
-import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
 
-import JobActions from '@/components/JobActions'; // ← повернули дії
-import JobRatingBadge from '@/components/JobRatingBadge';
-import ReviewSection from '@/components/ReviewSection';
-import { prisma } from '@/lib/prisma';
+import JobActions from "@/components/JobActions";
+import JobRatingBadge from "@/components/JobRatingBadge";
+import ReviewSection from "@/components/ReviewSection";
+import { prisma } from "@/lib/prisma";
+import { autoLink } from "@/lib/autoLink";
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-// Завантаження вакансії (віддаємо все, що треба і для JobActions)
+// Завантаження вакансії
 async function getJob(id) {
   return prisma.job.findUnique({
     where: { id },
@@ -23,18 +24,17 @@ async function getJob(id) {
       salaryMin: true,
       salaryMax: true,
       createdAt: true,
-      status: true, // ← потрібен для відображення
-      ownerId: true, // ← потрібен JobActions
+      status: true,
+      ownerId: true,
       ratingAvg: true,
       ratingCount: true,
       Company: { select: { id: true, name: true, logoUrl: true } },
       User: {
-        // власник (для перевірки прав у JobActions)
         select: {
           id: true,
           displayName: true,
           photoUrl: true,
-          firebaseUid: true, // ← дуже бажано для співставлення з auth.uid
+          firebaseUid: true,
         },
       },
     },
@@ -44,13 +44,13 @@ async function getJob(id) {
 // SEO
 export async function generateMetadata({ params }) {
   const job = await getJob(params.id);
-  if (!job) return { title: 'Oferta nie została znaleziona' };
-  const place = job.isRemote ? 'Zdalnie' : (job.city ?? '—');
+  if (!job) return { title: "Oferta nie została znaleziona" };
+  const place = job.isRemote ? "Zdalnie" : job.city ?? "—";
   return { title: `${job.title} – ${place} | proponujeprace.pl` };
 }
 
 function Salary({ min, max }) {
-  const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('pl-PL') : null);
+  const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString("pl-PL") : null);
   const a = fmt(min);
   const b = fmt(max);
   if (a && b)
@@ -67,10 +67,12 @@ function Salary({ min, max }) {
 export default async function JobDetailsPage({ params }) {
   const job = await getJob(params.id);
   if (!job) {
-    return <section className="p-6 text-red-600">Oferta nie została znaleziona.</section>;
+    return (
+      <section className="p-6 text-red-600">Oferta nie została znaleziona.</section>
+    );
   }
 
-  const companyName = job.Company?.name ?? '—';
+  const companyName = job.Company?.name ?? "—";
   const logoUrl = job.Company?.logoUrl ?? null;
 
   return (
@@ -102,20 +104,16 @@ export default async function JobDetailsPage({ params }) {
             </div>
             <div className="mt-1 text-sm text-gray-700">
               {job.Company ? (
-                <Link
-                  href={`/companies/${job.Company.id}`}
-                  className="text-brand-600 hover:underline"
-                >
+                <Link href={`/companies/${job.Company.id}`} className="text-brand-600 hover:underline">
                   {companyName}
                 </Link>
               ) : (
                 companyName
               )}
-              <span className="ml-2">· {job.isRemote ? 'Zdalnie' : job.city || '—'}</span>
+              <span className="ml-2">· {job.isRemote ? "Zdalnie" : job.city || "—"}</span>
             </div>
           </div>
 
-          {/* Кнопки дій (редагувати/видалити) — повернули */}
           <div className="ml-auto">
             <JobActions job={job} />
           </div>
@@ -136,16 +134,21 @@ export default async function JobDetailsPage({ params }) {
           <div className="rounded-lg border bg-gray-50 p-3 text-sm">
             <div className="text-gray-500">Dodano</div>
             <div className="font-medium">
-              {job.createdAt ? new Date(job.createdAt).toLocaleDateString('pl-PL') : '—'}
+              {job.createdAt ? new Date(job.createdAt).toLocaleDateString("pl-PL") : "—"}
             </div>
           </div>
         </div>
 
-        {/* Опис */}
+        {/* Опис з автолінками */}
         {job.description && (
           <div className="prose mt-6 max-w-none">
             <h2 className="mb-2 text-lg font-semibold">Opis</h2>
-            <p className="whitespace-pre-wrap text-gray-800">{job.description}</p>
+            <div
+              className="text-gray-800"
+              dangerouslySetInnerHTML={{
+                __html: autoLink(job.description),
+              }}
+            />
           </div>
         )}
 
