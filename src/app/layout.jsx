@@ -1,7 +1,14 @@
 import './globals.css';
+import { Poppins } from 'next/font/google';
 import NavBar from '@/components/NavBar';
 import SiteFooter from '@/components/Footer';
 
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['600'],
+  style: ['italic'],
+  variable: '--font-poppins',
+});
 export const metadata = {
   title: 'proponujeprace.pl',
   description: 'Portal ogłoszeń o pracy w Polsce',
@@ -11,7 +18,7 @@ export default function RootLayout({ children }) {
   const GA_ID = 'G-1N2EPPHB54'; // твій GA4 ID
 
   return (
-    <html lang="pl">
+    <html lang="pl" className={poppins.variable}>
       <head>
         {/* Favicon */}
         <link rel="icon" href="/favicon.svg?v=4" type="image/svg+xml" />
