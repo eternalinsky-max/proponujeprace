@@ -6,18 +6,24 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 const TOPICS = [
-  'Najnowsze trendy na rynku pracy w Polsce 2026',
-  'Jak napisać skuteczne CV które przyciągnie pracodawcę',
-  'Najpopularniejsze zawody w Polsce i ich zarobki',
-  'Praca zdalna w Polsce — zalety, wady i przyszłość',
-  'Jak przygotować się do rozmowy kwalifikacyjnej',
-  'Branże z największym zapotrzebowaniem na pracowników w 2026',
-  'Jak negocjować wynagrodzenie — praktyczne porady',
-  'Rynek IT w Polsce — zarobki i perspektywy',
-  'Jak zmienić pracę i nie żałować — poradnik',
-  'Prawa pracownika w Polsce — co warto wiedzieć',
-  'Freelancing w Polsce — jak zacząć i ile zarobić',
-  'Jak budować markę osobistą na rynku pracy',
+  'Elektryk w Polsce — zarobki, wymagania i perspektywy zawodowe',
+  'Kierowca zawodowy w Polsce — ile zarabia i jak zdobyć uprawnienia',
+  'Księgowy w Polsce — zakres obowiązków, zarobki i ścieżka kariery',
+  'Programista w Polsce — zarobki, języki programowania i rynek pracy',
+  'Spawacz w Polsce — zarobki, uprawnienia i zapotrzebowanie na rynku',
+  'Mechanik samochodowy w Polsce — zarobki i perspektywy zatrudnienia',
+  'Pielęgniarka w Polsce — zarobki, warunki pracy i braki kadrowe',
+  'Budowlaniec w Polsce — zawody budowlane i zarobki w 2026 roku',
+  'Magazynier w Polsce — obowiązki, zarobki i wymagania pracodawców',
+  'Kucharz i gastronomiа w Polsce — zarobki i perspektywy zawodowe',
+  'Sprzedawca w Polsce — zarobki, obowiązki i rynek handlu detalicznego',
+  'Operator wózka widłowego — zarobki, uprawnienia i oferty pracy',
+  'Hydraulik w Polsce — zarobki, uprawnienia i zapotrzebowanie',
+  'Nauczyciel w Polsce — zarobki, warunki pracy i reformy oświaty',
+  'Ochroniarz w Polsce — zarobki, licencja i wymagania pracodawców',
+  'Fryzjer w Polsce — zarobki, własny salon czy praca na etacie',
+  'Logistyk w Polsce — zarobki, obowiązki i perspektywy zawodowe',
+  'Pracownik produkcji w Polsce — zarobki i warunki zatrudnienia',
 ];
 
 function slugify(text) {
