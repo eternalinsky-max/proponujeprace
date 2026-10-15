@@ -3,7 +3,7 @@ import NavBar from '@/components/NavBar';
 import SiteFooter from '@/components/Footer';
 
 export const metadata = {
-  title: 'proponujeprace.pl',
+  title: 'wprace.pl',
   description: 'Portal ogłoszeń o pracy w Polsce',
 };
 

@@ -1,6 +1,6 @@
 {
-  "name": "proponujeprace.pl",
-  "short_name": "proponujeprace",
+  "name": "wpracenujeprace.pl",
+  "short_name": "wpracenujeprace",
   "description": "Portal ogłoszeń o pracy w Polsce",
   "start_url": "/",
   "scope": "/",

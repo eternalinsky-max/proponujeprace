@@ -193,17 +193,17 @@ export default function ContactForm() {
 
       <section className="mt-8 rounded-2xl border bg-gray-50 p-6 text-[10px] leading-relaxed text-gray-700 shadow-inner">
         <p>
-          <strong>VANS SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ</strong>
+          <strong>SERWIS TECHNICZNY VOLODYMYR STUPACHENKO</strong>
         </p>
-        <p>NIP: 7011068577</p>
-        <p>KRS: 0000945541</p>
-        <p>Kapitał zakładowy: 5 000,00 zł</p>
+        <p>NIP: 5272878587</p>
+        <p>REGON: 541980784</p>
+        <p>Tel.: +48739540623 </p>
         <p>Adres: UL. STANISŁAWA WOJCIECHOWSKIEGO 33 / 7, 02-495 WARSZAWA</p>
       </section>
       {/* MAPA — Google Maps embed */}
       <div className="mt-4 overflow-hidden rounded-2xl border">
         <iframe
-          title="Mapa — VANS Sp. z o.o."
+          title="Mapa — SERWIS TECHNICZNY"
           src={
             'https://www.google.com/maps?q=' +
             encodeURIComponent('UL. STANISŁAWA WOJCIECHOWSKIEGO 33, 02-495 WARSZAWA') +

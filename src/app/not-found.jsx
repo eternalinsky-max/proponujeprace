@@ -29,7 +29,7 @@ export default function NotFound() {
       </Link>
 
       {/* Підпис унизу */}
-      <p className="mt-10 text-sm text-gray-400">© {new Date().getFullYear()} proponujeprace.pl</p>
+      <p className="mt-10 text-sm text-gray-400">© {new Date().getFullYear()} wpracenujeprace.pl</p>
     </main>
   );
 }

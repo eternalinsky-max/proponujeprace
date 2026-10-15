@@ -41,14 +41,14 @@ export default function NavBar() {
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/favicon.svg"
-            alt="proponujeprace.pl"
+            alt="wpracenujeprace.pl"
             width={36}
             height={36}
             priority
             className="rounded-xl"
             unoptimized
           />
-          <span className="font-bold">proponujeprace.pl</span>
+          <span className="font-bold">wpracenujeprace.pl</span>
         </Link>
 
         {/* desktop nav */}
