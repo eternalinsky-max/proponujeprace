@@ -55,23 +55,6 @@ export default function NavBar() {
           <span className="font-bold">wprace.pl</span>
         </Link>
 
-       {/* logo */}
-<Link href="/" className="flex items-center gap-2.5 group">
-  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
-    <svg viewBox="0 0 36 36" width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <text x="9" y="24" fontFamily="var(--font-poppins), sans-serif" fontSize="24" fontWeight="600" fill="white" fontStyle="italic">P</text>
-  <text x="19" y="26" fontFamily="var(--font-poppins), sans-serif" fontSize="14" fontWeight="600" fill="white" fillOpacity="0.75" fontStyle="italic">p</text>
-</svg>
-  </div>
-  <div className="flex flex-col leading-none gap-0.5" style={{ fontFamily: 'var(--font-poppins), sans-serif', fontStyle: 'italic' }}>
-    <span className="font-bold text-gray-900" style={{ fontSize: '15px' }}>
-      <span style={{ fontSize: '18px' }}>P</span>roponuje
-    </span>
-    <span className="font-bold text-blue-600 pl-3" style={{ fontSize: '15px' }}>
-      <span style={{ fontSize: '18px' }}>p</span>race.pl
-    </span>
-  </div>
-</Link>
         {/* desktop nav */}
         <nav className="hidden items-center gap-1 md:flex" aria-label="Główna nawigacja">
           {items.map(({ href, label }) => (
