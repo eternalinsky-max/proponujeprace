@@ -51,7 +51,7 @@ async function getCompany(id) {
 export async function generateMetadata({ params }) {
   const c = await getCompany(params.id);
   if (!c) return { title: 'Firma nie została znaleziona' };
-  return { title: `${c.name} | wpracenujeprace.pl` };
+  return { title: `${c.name} | wprace.pl` };
 }
 
 function Salary({ min, max }) {

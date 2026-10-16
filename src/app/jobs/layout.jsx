@@ -1,6 +1,6 @@
 // src/app/jobs/layout.jsx
 export const metadata = {
-  title: 'Oferty pracy — wpracenujeprace.pl',
+  title: 'Oferty pracy — wprace.pl',
   description: 'Przeglądaj i sortuj oferty pracy.',
 };
 

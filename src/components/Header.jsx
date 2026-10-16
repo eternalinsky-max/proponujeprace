@@ -64,10 +64,10 @@ export default function Header() {
           >
             <img
               src="/favicon.svg"
-              alt="wpracenujeprace.pl"
+              alt="wprace.pl"
               className="h-8 w-8"
             />
-            <span>wpracenujeprace.pl</span>
+            <span>wprace.pl</span>
           </Link>
 
           {/* Десктоп навігація */}

@@ -29,7 +29,7 @@ export default function SiteFooter() {
 
         {/* LEFT SECTION */}
         <div>
-          <p className="text-lg font-semibold text-white">wpracenujeprace.pl</p>
+          <p className="text-lg font-semibold text-white">wprace.pl</p>
           <p className="text-gray-400 mb-2">
             Znajdź pracę szybciej. Dodawaj, oceniaj, aplikuj.
           </p>

@@ -40,7 +40,7 @@ export function baseHtml({ title, body }) {
 <body>
   <div class="card">
     ${body}
-    <div class="muted">© wpracenujeprace.pl</div>
+    <div class="muted">© wprace.pl</div>
   </div>
 </body>
 </html>`;

@@ -2,8 +2,8 @@
 import ContactForm from './ContactForm';
 
 export const metadata = {
-  title: 'Kontakt | wpracenujeprace.pl',
-  description: 'Skontaktuj się z zespołem portalu wpracenujeprace.pl.',
+  title: 'Kontakt | wprace.pl',
+  description: 'Skontaktuj się z zespołem portalu wprace.pl.',
 };
 
 export default function ContactPage() {

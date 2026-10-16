@@ -46,7 +46,7 @@ export async function generateMetadata({ params }) {
   const job = await getJob(params.id);
   if (!job) return { title: "Oferta nie została znaleziona" };
   const place = job.isRemote ? "Zdalnie" : job.city ?? "—";
-  return { title: `${job.title} – ${place} | wpracenujeprace.pl` };
+  return { title: `${job.title} – ${place} | wprace.pl` };
 }
 
 function Salary({ min, max }) {

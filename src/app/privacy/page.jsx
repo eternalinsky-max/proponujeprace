@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Polityka prywatności | wpracenujeprace.pl',
-  description: 'Dowiedz się, jak portal wpracenujeprace.pl chroni Twoje dane osobowe i prywatność.',
+  title: 'Polityka prywatności | wprace.pl',
+  description: 'Dowiedz się, jak portal wprace.pl chroni Twoje dane osobowe i prywatność.',
 };
 
 export default function PrivacyPage() {
@@ -10,7 +10,7 @@ export default function PrivacyPage() {
 
       <p className="mb-4">
         Niniejsza polityka prywatności opisuje zasady przetwarzania danych osobowych użytkowników
-        portalu <strong>wpracenujeprace.pl</strong>.
+        portalu <strong>wprace.pl</strong>.
       </p>
 
       <h2 className="mb-2 mt-8 text-xl font-semibold">1. Administrator danych</h2>

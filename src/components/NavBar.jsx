@@ -45,14 +45,14 @@ export default function NavBar() {
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/favicon.svg"
-            alt="wpracenujeprace.pl"
+            alt="wprace.pl"
             width={36}
             height={36}
             priority
             className="rounded-xl"
             unoptimized
           />
-          <span className="font-bold">wpracenujeprace.pl</span>
+          <span className="font-bold">wprace.pl</span>
         </Link>
 
        {/* logo */}

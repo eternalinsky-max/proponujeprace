@@ -220,7 +220,7 @@ export async function POST(req) {
 
     // 6) Compose & send
     const to = process.env.SUPPORT_EMAIL || "serwisvans@gmail.com";
-    const subject = `Kontakt z wpracenujeprace.pl — ${name}`;
+    const subject = `Kontakt z wprace.pl — ${name}`;
     const text = `Imię i nazwisko: ${name}
 Email: ${email}
 IP: ${ip}
