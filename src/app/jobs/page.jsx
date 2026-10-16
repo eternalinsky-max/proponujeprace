@@ -1,8 +1,8 @@
 // src/app/jobs/page.jsx
-import { headers } from 'next/headers';
 import Link from 'next/link';
 
 import JobCardList from '@/components/JobCardList';
+import { listJobs } from '@/lib/jobs';
 
 /**
  * Сторінка списку вакансій.
@@ -16,43 +16,18 @@ import JobCardList from '@/components/JobCardList';
 export const dynamic = 'force-dynamic';
 
 async function fetchJobs(searchParams) {
-  const params = new URLSearchParams();
-
-  const page = Number(searchParams?.page) || 1;
-  const perPage = Number(searchParams?.perPage) || 12;
-  const sort = (searchParams?.sort || 'createdAt').toString();
-  const dir = (searchParams?.dir || 'desc').toString();
-  const status = (searchParams?.status || '').toString();
-  const city = (searchParams?.city || '').toString();
-  const remote = (searchParams?.remote ?? '').toString(); // "1"|"0"|""
-  const q = (searchParams?.q || '').toString();
-
-  params.set('page', String(Math.max(1, page)));
-  params.set('perPage', String(Math.min(Math.max(perPage, 1), 100)));
-  if (sort) params.set('sort', sort);
-  if (dir) params.set('dir', dir);
-  if (status) params.set('status', status);
-  if (city) params.set('city', city);
-  if (remote === '1' || remote === '0') params.set('remote', remote);
-  if (q) params.set('q', q);
-
-  // --- ВАЖЛИВО: абсолютний URL для SSR ---
-  const hdrs = headers();
-  const host =
-    hdrs.get('x-forwarded-host') ||
-    hdrs.get('host') ||
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/^https?:\/\//, '');
-  const proto = hdrs.get('x-forwarded-proto') || 'http';
-  const base =
-    process.env.NEXT_PUBLIC_SITE_URL || (host ? `${proto}://${host}` : 'http://localhost:3000');
-
-  const res = await fetch(`${base}/api/jobs?${params.toString()}`, {
-    cache: 'no-store',
+  const data = await listJobs({
+    page: searchParams?.page,
+    perPage: searchParams?.perPage,
+    sort: searchParams?.sort,
+    dir: searchParams?.dir,
+    status: searchParams?.status,
+    city: searchParams?.city,
+    remote: searchParams?.remote,
+    q: searchParams?.q,
   });
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}`);
-  }
-  return res.json();
+  // Date -> рядки, щоб безпечно передавати у клієнтські компоненти
+  return JSON.parse(JSON.stringify(data));
 }
 
 export default async function JobsPage({ searchParams }) {

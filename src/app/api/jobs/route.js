@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { NextResponse } from 'next/server';
 
 import { adminAuth } from '@/lib/firebase-admin';
+import { listJobs } from '@/lib/jobs';
 import { prisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
@@ -10,96 +11,18 @@ export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/jobs — публічний список вакансій
- * Query:
- *   page (default 1)
- *   perPage (default 12, max 100)
- *   sort: createdAt|salaryMin|salaryMax|bayesScore|ratingAvg  (default: createdAt)
- *   dir:  asc|desc  (default: desc)
- *   status: "ACTIVE" (default) | "HIDDEN" | "DRAFT" ...
- *   city: substring (case-insensitive)
- *   remote: "1" (лише з віддаленою), "0" (лише офіс), "" (будь-які)
- *   q: пошук по title/description/tagsCsv (case-insensitive contains)
+ * Query: page, perPage, sort, dir, status, city, remote, q
  */
 export async function GET(req) {
   try {
     const url = new URL(req.url);
-
-    const page = Math.max(1, Number(url.searchParams.get('page') || '1'));
-    const perRaw = Number(url.searchParams.get('perPage') || '12');
-    const perPage = Math.min(100, Math.max(1, perRaw));
-
-    const sort = (url.searchParams.get('sort') || 'createdAt').toString();
-    const dir = (url.searchParams.get('dir') || 'desc') === 'asc' ? 'asc' : 'desc';
-    const status = (url.searchParams.get('status') || 'ACTIVE').toString();
-    const city = (url.searchParams.get('city') || '').trim();
-    const remote = (url.searchParams.get('remote') || '').trim(); // "1" | "0" | ""
-    const q = (url.searchParams.get('q') || '').trim();
-
-    const allowedSort = new Set(['createdAt', 'salaryMin', 'salaryMax', 'bayesScore', 'ratingAvg']);
-    const orderByField = allowedSort.has(sort) ? sort : 'createdAt';
-    const orderBy = { [orderByField]: dir };
-
-    /** @type {import('@prisma/client').Prisma.JobWhereInput} */
-    const where = {};
-    if (status) where.status = status || 'ACTIVE';
-    if (remote === '1') where.isRemote = true;
-    else if (remote === '0') where.isRemote = false;
-    if (city) where.city = { contains: city, mode: 'insensitive' };
-    if (q) {
-      where.OR = [
-        { title: { contains: q, mode: 'insensitive' } },
-        { description: { contains: q, mode: 'insensitive' } },
-        { tagsCsv: { contains: q, mode: 'insensitive' } },
-      ];
-    }
-
-    const [items, total] = await Promise.all([
-      prisma.job.findMany({
-        where,
-        orderBy,
-        skip: (page - 1) * perPage,
-        take: perPage,
-        select: {
-          id: true,
-          title: true,
-          description: true,
-          city: true,
-          isRemote: true,
-          salaryMin: true,
-          salaryMax: true,
-          status: true,
-          createdAt: true,
-          updatedAt: true,
-          ratingAvg: true,
-          ratingCount: true,
-          ratingSum: true,
-          bayesScore: true,
-          companyId: true,
-          ownerId: true,
-          Company: { select: { id: true, name: true, logoUrl: true } },
-        },
-      }),
-      prisma.job.count({ where }),
-    ]);
-
-    const totalPages = Math.max(1, Math.ceil(total / perPage));
-    const hasNext = page < totalPages;
-
-    return NextResponse.json({
-      ok: true,
-      items,
-      page,
-      perPage,
-      total,
-      totalPages,
-      hasNext,
-    });
+    const data = await listJobs(Object.fromEntries(url.searchParams));
+    return NextResponse.json(data);
   } catch (e) {
     console.error('[GET /api/jobs] error:', e);
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }
-
 /**
  * POST /api/jobs — створення вакансії (Firebase Bearer token)
  * Body: { title, description, city?, isRemote?, salaryMin?, salaryMax?, tagsCsv?, status? }

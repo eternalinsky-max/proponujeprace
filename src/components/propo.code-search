@@ -1,0 +1,74 @@
+# Query: propo
+
+29 results - 21 files
+
+fresh.svg:
+  2: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="wprace favicon">
+
+public\favicon.svg:
+  2: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="wprace favicon">
+
+public\site.webmanifest:
+  2:   "name": "wprace.pl",
+  3:   "short_name": "wprace",
+
+public\icons\favicon.svg:
+  2: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="wprace favicon">
+
+src\app\layout.jsx:
+  6:   title: 'wprace.pl',
+
+src\app\not-found.jsx:
+  32:       <p className="mt-10 text-sm text-gray-400">© {new Date().getFullYear()} wprace.pl</p>
+
+src\app\api\contact\route.js:
+  223:     const subject = `Kontakt z wprace.pl — ${name}`;
+
+src\app\api\test-mail\route.js:
+  36:       text: 'Działa! — Wiadomość testowa z wprace.pl 💙',
+
+src\app\companies\[id]\page.jsx:
+  54:   return { title: `${c.name} | wprace.pl` };
+
+src\app\contact\page.jsx:
+  5:   title: 'Kontakt | wprace.pl',
+  6:   description: 'Skontaktuj się z zespołem portalu wprace.pl.',
+
+src\app\jobs\layout.jsx:
+  3:   title: 'Oferty pracy — wprace.pl',
+
+src\app\jobs\[id]\page.jsx:
+  49:   return { title: `${job.title} – ${place} | wprace.pl` };
+
+src\app\privacy\page.jsx:
+   2:   title: 'Polityka prywatności | wprace.pl',
+   3:   description: 'Dowiedz się, jak portal wprace.pl chroni Twoje dane osobowe i prywatność.',
+  13:         portalu <strong>wprace.pl</strong>.
+
+src\app\terms\page.jsx:
+   8:       <h1>Regulamin serwisu wprace.pl</h1>
+  13:         Niniejszy regulamin określa zasady korzystania z serwisu wprace.pl. Użytkownik,
+  38:         dostępna na stronie wprace.pl/terms.
+
+src\app\users\[id]\page.jsx:
+  47:   return { title: `${u.displayName || 'Użytkownik'} | wprace.pl` };
+
+src\components\Footer.jsx:
+  32:           <p className="text-lg font-semibold text-white">wprace.pl</p>
+
+src\components\Header.jsx:
+  67:               alt="wprace.pl"
+  70:             <span>wprace.pl</span>
+
+src\components\NavBar.jsx:
+  44:             alt="wprace.pl"
+  51:           <span className="font-bold">wprace.pl</span>
+
+src\components\SiteFooter.jsx:
+  42:           <p className="font-medium text-white">wprace.pl</p>
+
+src\lib\mailer.js:
+  25:           from: `${fromName || 'wprace.pl'} <onboarding@resend.dev>`,
+
+src\lib\templates.js:
+  43:     <div class="muted">© wprace.pl</div>
