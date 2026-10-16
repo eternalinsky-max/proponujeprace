@@ -4,6 +4,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
 
 import AddJobButton from '@/components/AddJobButton';
 import UserMenu from '@/components/UserMenu';
@@ -39,7 +40,6 @@ export default function NavBar() {
   return (
     <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 p-4">
-<<<<<<< HEAD
         
         {/* logo */}
         <Link href="/" className="flex items-center gap-2">
@@ -54,8 +54,6 @@ export default function NavBar() {
           />
           <span className="font-bold">wpracenujeprace.pl</span>
         </Link>
-=======
->>>>>>> 92325d7878cfbf9c61aef0e0f99549b5c089d618
 
        {/* logo */}
 <Link href="/" className="flex items-center gap-2.5 group">
