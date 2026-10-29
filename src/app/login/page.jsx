@@ -1,20 +1,22 @@
 'use client';
 
-import { onAuthStateChanged,signOut } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 
-import { auth,loginWithGoogle } from '@/lib/firebase';
+import { auth, loginWithGoogle } from '@/lib/firebase';
 
 export default function LoginPage() {
   const [me, setMe] = useState(null);
   const [err, setErr] = useState(null);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         localStorage.removeItem('idToken');
         setMe(null);
+        setChecking(false);
         return;
       }
       try {
@@ -30,6 +32,8 @@ export default function LoginPage() {
         setErr(null);
       } catch (e) {
         setErr(e.message);
+      } finally {
+        setChecking(false);
       }
     });
     return () => unsub();
@@ -47,21 +51,33 @@ export default function LoginPage() {
     }
   }
 
+  if (checking) {
+    return (
+      <section className="mx-auto max-w-xl px-4 py-6">
+        <p className="text-sm text-gray-500">Ładowanie…</p>
+      </section>
+    );
+  }
+
   return (
     <section className="mx-auto max-w-xl space-y-6 px-4 py-6">
-      <h1 className="text-2xl font-bold">Zaloguj się</h1>
+      {!me && (
+        <>
+          <h1 className="text-2xl font-bold">Zaloguj się</h1>
 
-      <div className="space-y-4 rounded-xl border bg-white p-6 shadow-soft">
-        <button
-          onClick={handleGoogle}
-          disabled={loadingGoogle}
-          className="btn btn-primary w-full justify-center"
-        >
-          {loadingGoogle ? 'Logowanie…' : 'Zaloguj przez Google'}
-        </button>
+          <div className="space-y-4 rounded-xl border bg-white p-6 shadow-soft">
+            <button
+              onClick={handleGoogle}
+              disabled={loadingGoogle}
+              className="btn btn-primary w-full justify-center"
+            >
+              {loadingGoogle ? 'Logowanie…' : 'Zaloguj przez Google'}
+            </button>
 
-        {err && <p className="mt-2 text-sm text-red-600">{err}</p>}
-      </div>
+            {err && <p className="mt-2 text-sm text-red-600">{err}</p>}
+          </div>
+        </>
+      )}
 
       {me && (
         <div className="rounded-xl border bg-white p-6 shadow-soft">
